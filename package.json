@@ -1,0 +1,18 @@
+{
+  "name": "build-artifacts-login",
+  "version": "1.0.0",
+  "description": "build-artifacts-login is an npm module that allows you to configure npm to interact with npm repositories stored in Cloud Build Artifacts.",
+  "main": "build-artifacts-login.js",
+  "scripts": {
+    "test": "node build-artifacts-login.js"
+  },
+  "author": "Kayla Nguyen",
+  "license": "MIT",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "google-auth-library": "^4.2.5"
+  },
+  "bin": {
+    "build-artifacts-login": "./build-artifacts-login.js"
+  }
+}
