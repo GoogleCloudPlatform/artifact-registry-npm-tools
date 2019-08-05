@@ -69,8 +69,7 @@ async function updateConfigFile(configPath, creds) {
         return;
       }
 
-      const newContents = contents.replace(
-         regex, `$1"${creds}"`);
+      const newContents = contents.replace(regex, `$1"${creds}"`);
 
       const tempConfigPath = configPath.replace('.npmrc', '.npmrc-temp');
       fs.writeFile(tempConfigPath, newContents, err => {
