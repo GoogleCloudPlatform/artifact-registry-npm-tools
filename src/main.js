@@ -43,7 +43,7 @@ async function main() {
 
     const creds = await auth.getCreds();
     await auth.updateConfigFile(configPath, creds);
-    console.log('Credentials updated in' + configPath);
+    console.log('Credentials updated in ' + configPath);
   } catch (err) {
     console.error(err);
     process.exit(1);

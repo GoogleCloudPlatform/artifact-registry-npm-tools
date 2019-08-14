@@ -20,10 +20,13 @@ To use the module:
 
 1.  Log in
 
-    Using end user credentials: `$ gcloud auth application-default login`
+    Using end user credentials:
 
-    Using service account: `$ export
-    GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key.json>`
+    `$ gcloud auth application-default login`
+
+    Using service account:
+
+    `$ export GOOGLE_APPLICATION_CREDENTIALS=[path/to/key.json]`
 
 2.  Add settings to connect to the repository to .npmrc. Use the output from the
     following command:
@@ -46,7 +49,7 @@ To use the module:
 
 3.  Use one of these below options to run the script
 
-    1.  Directly run
+    1.  Run the script
 
         `$ npx google-buildartifacts-auth [path/to/.npmrc]`
 
