@@ -1,18 +1,18 @@
-# Build Artifacts tools for npm
+# Artifact Registry tools for npm
 
 This repository contains tools to simplify the process of working with npm
-repositories using Cloud Build Artifacts.
+repositories using Artifact Registry.
 
-# Cloud Build Artifacts Module
+# Artifact Registry Module
 
-The Cloud Build Artifacts google-buildartifacts-auth module is an npm package
+The Artifact Registry google-artifacregistry-auth module is an npm package
 which allows you to configure npm to interact with npm repositories stored in
-Cloud Build Artifacts.
+Artifact Registry.
 
-The module authenticates to Cloud Build Artifacts using
+The module authenticates to Artifact Registry using
 [Google Application Default Credentials](https://developers.google.com/accounts/docs/application-default-credentials).
 
-NOTE: This module would update credentials for **all** Cloud Build Artifacts
+NOTE: This module would update credentials for **all** Artifact Registry
 repositories. It would not be suitable if you use multiple account
 credentials in npmrc file.
 
@@ -31,14 +31,14 @@ To use the module:
 2.  Add settings to connect to the repository to .npmrc. Use the output from the
     following command:
 
-    `$ gcloud alpha build-artifacts print-settings npm`
+    `$ gcloud beta artifact-registry print-settings npm`
 
     ```
-    registry=https://npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/
-    //npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:_password=""
-    //npm.pkg.dev/PROJECT_ID/REPOSITORY_ID:username=oauth2accesstoken
-    //npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:email=not.valid@email.com
-    //npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:always-auth=true
+    registry=https://LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/
+    //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:_password=""
+    //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID:username=oauth2accesstoken
+    //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:email=not.valid@email.com
+    //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:always-auth=true
     ```
 
     Where
@@ -47,34 +47,36 @@ To use the module:
 
     **REPOSITORY_ID** is the ID of the repository.
 
+    **LOCATION** is the location of the repository.
+
 3.  Use one of these below options to run the script
 
-    1.  Run the script
+    1.  Run the script outside of the directory containing the target npmrc file
 
-        `$ npx google-buildartifacts-auth [path/to/.npmrc]`
+        `$ npx google-artifactregistry-auth [path/to/.npmrc]`
 
     2.  Include the binary in the scripts in package.json
 
         ```
         "scripts": {
-            "build-artifacts-login": "npx google-buildartifacts-auth [path/to/.npmrc]",
+            "artifactregistry-login": "npx google-artifactregistry-auth [path/to/.npmrc]",
         }
         ```
 
         Run the script
 
-        `$ npm run buildartifacts-login`
+        `$ npm run artifactregistry-login`
 
     3.  `npx` should come with `npm` 5.2+. If `npx` is not available:
 
         Install the module from npmjs.com as a dev dependency and include the
         binary in the script
 
-        `$ npm install google-buildartifacts-auth --save-dev`
+        `$ npm install google-artifactregistry-auth --save-dev`
 
         ```
         "scripts": {
-            "buildartifacts-auth": "google-buildartifacts-auth [path/to/.npmrc]",
+            "artifactregistry-login": "google-artifactregistry-auth [path/to/.npmrc]",
         }
         ```
 
@@ -84,4 +86,4 @@ To use the module:
 
         Run the script
 
-        `$ npm run buildartifacts-login`
+        `$ npm run artifactregistry-login`

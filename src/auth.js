@@ -41,7 +41,10 @@ async function getCreds() {
     const headers = await client.getRequestHeaders();
     creds = headers['Authorization'].split(' ')[1];
   } catch (err) {
-    throw new Error('Corrupted credentials.');
+    throw new Error(
+    'Fail to get credentials. Please run: \n' +
+    '`gcloud auth application-default login` or \n' +
+    '`export GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key>`');
   }
   return Buffer.from(creds).toString('base64');
 }
@@ -61,11 +64,11 @@ async function updateConfigFile(configPath, creds) {
         return;
       }
 
-      const regex = /(\/\/npm[.]pkg[.]dev\/.*\/:_password=).*/g;
+      const regex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_password=).*/g;
       if (!contents.match(regex)) {
         reject(new Error(
-            'Build Artifacts config not found in ' + configPath +
-            '\nPlease run `gcloud alpha build-artifacts print-settings npm`.'));
+            'Artifact Registry config not found in ' + configPath +
+            '\nPlease run `gcloud beta artifacts print-settings npm`.'));
         return;
       }
 
