@@ -5,16 +5,16 @@ repositories using Artifact Registry.
 
 # Artifact Registry Module
 
-The Artifact Registry google-artifacregistry-auth module is an npm package
-which allows you to configure npm to interact with npm repositories stored in
-Artifact Registry.
+The Artifact Registry google-artifacregistry-auth module is an npm package which
+allows you to configure npm to interact with npm repositories stored in Artifact
+Registry.
 
 The module authenticates to Artifact Registry using
 [Google Application Default Credentials](https://developers.google.com/accounts/docs/application-default-credentials).
 
 NOTE: This module would update credentials for **all** Artifact Registry
-repositories. It would not be suitable if you use multiple account
-credentials in npmrc file.
+repositories. It would not be suitable if you use multiple account credentials
+in npmrc file.
 
 To use the module:
 
@@ -76,7 +76,7 @@ To use the module:
 
         ```
         "scripts": {
-            "artifactregistry-login": "google-artifactregistry-auth [path/to/.npmrc]",
+            "artifactregistry-login": "./node_modules/.bin/artifactregistry-auth [path/to/.npmrc]",
         }
         ```
 
