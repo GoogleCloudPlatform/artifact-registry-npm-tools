@@ -38,13 +38,20 @@ async function getCreds() {
 
   let creds;
   try {
-    const headers = await client.getRequestHeaders();
-    creds = headers['Authorization'].split(' ')[1];
+    creds = (await client.getAccessToken()).token;
+    const tokenScope = (await client.getTokenInfo(creds)).scopes;
+    if (!tokenScope.includes(
+            'https://www.googleapis.com/auth/cloud-platform')) {
+      throw new Error(
+          'Token has insufficient authentication scopes.\n' +
+          'Please configure access scope following instructions on ' +
+          'https://cloud.google.com/artifact-registry/docs/access-control#compute');
+    }
   } catch (err) {
     throw new Error(
-    'Fail to get credentials. Please run: \n' +
-    '`gcloud auth application-default login` or \n' +
-    '`export GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key>`');
+        'Fail to get credentials. Please run: \n' +
+        '`gcloud auth application-default login` or \n' +
+        '`export GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key>`');
   }
   return Buffer.from(creds).toString('base64');
 }
@@ -54,7 +61,7 @@ async function getCreds() {
  *
  * @param {string} configPath Path to npmrc file.
  * @param {string} creds Encrypted credentials.
- * @return {!Promise}
+ * @return {!Promise<undefined>}
  */
 async function updateConfigFile(configPath, creds) {
   return new Promise((resolve, reject) => {
