@@ -27,7 +27,7 @@ const auth = require('./auth');
  * },
  * - Or run directly $ ./src/main.js [path/to/.npmrc]
  *
- * @return {!Promise}
+ * @return {!Promise<undefined>}
  */
 async function main() {
   try {
