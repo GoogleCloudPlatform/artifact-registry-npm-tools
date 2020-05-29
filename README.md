@@ -5,9 +5,12 @@ repositories using Artifact Registry.
 
 # Artifact Registry Module
 
-The Artifact Registry google-artifacregistry-auth module is an npm package which
-allows you to configure npm to interact with npm repositories stored in Artifact
-Registry.
+The Artifact Registry google-artifactregistry-auth module is an npm package
+which allows you to configure npm to interact with npm repositories stored in
+Artifact Registry.
+
+For more details, see
+https://cloud.google.com/artifact-registry/docs/nodejs/authentication
 
 The module authenticates to Artifact Registry using
 [Google Application Default Credentials](https://developers.google.com/accounts/docs/application-default-credentials).
@@ -31,7 +34,7 @@ To use the module:
 2.  Add settings to connect to the repository to .npmrc. Use the output from the
     following command:
 
-    `$ gcloud beta artifact-registry print-settings npm`
+    `$ gcloud beta artifacts print-settings npm`
 
     ```
     registry=https://LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/
@@ -51,11 +54,11 @@ To use the module:
 
 3.  Use one of these below options to run the script
 
-    1.  Run the script outside of the directory containing the target npmrc file
+    1.  Run the module outside of the directory containing the target npmrc file
 
         `$ npx google-artifactregistry-auth [path/to/.npmrc]`
 
-    2.  Include the binary in the scripts in package.json
+    2.  Include the command in the scripts in package.json
 
         ```
         "scripts": {
@@ -70,7 +73,7 @@ To use the module:
     3.  `npx` should come with `npm` 5.2+. If `npx` is not available:
 
         Install the module from npmjs.com as a dev dependency and include the
-        binary in the script
+        command in the script
 
         `$ npm install google-artifactregistry-auth --save-dev`
 
