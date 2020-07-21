@@ -54,7 +54,7 @@ async function getCreds() {
           'https://cloud.google.com/artifact-registry/docs/access-control#compute');
     }
   }
-  return Buffer.from(creds).toString('base64');
+  return creds;
 }
 
 /**
