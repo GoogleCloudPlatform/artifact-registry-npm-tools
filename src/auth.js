@@ -72,7 +72,7 @@ async function updateConfigFile(configPath, creds) {
         return;
       }
 
-      const regex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_password=).*/g;
+      const regex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_authToken=).*/g;
       if (!contents.match(regex)) {
         reject(new Error(
             'Artifact Registry config not found in ' + configPath +
