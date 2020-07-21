@@ -23,53 +23,70 @@ const creds = 'abcd';
 describe('#auth', () => {
   describe('#updateConfigFile(configPath, creds)', () => {
     const newConfig = `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
-//us-west1-npm.pkg.dev/my-project/my-repo/:_password=""
-//us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
-//us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com
+//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=""
 //us-west1-npm.pkg.dev/my-project/my-repo/:always-auth=true`;
 
     const existingConfig = `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
-//us-west1-npm.pkg.dev/my-project/my-repo/:_password="not_abcd"
-//us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
-//us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com
+//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken="not_abcd"
 //us-west1-npm.pkg.dev/my-project/my-repo/:always-auth=true`;
 
     const multipleConfig = `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
-//us-west1-npm.pkg.dev/my-project/my-repo/:_password="my-repo-creds"
-//us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
-//us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com
+//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken="my-repo-creds"
 //us-west1-npm.pkg.dev/my-project/my-repo/:always-auth=true
 @cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/
-//asia-npm.pkg.dev/my-project/my-other-repo/:_password="my-other-repo-creds"
-//asia-npm.pkg.dev/my-project/my-other-repo/:username=oauth2accesstoken
-//asia-npm.pkg.dev/my-project/my-other-repo/:email=not.valid@email.com
+//asia-npm.pkg.dev/my-project/my-other-repo/:_authToken="my-other-repo-creds"
 //asia-npm.pkg.dev/my-project/my-other-repo/:always-auth=true`;
 
     const wantContent = `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
-//us-west1-npm.pkg.dev/my-project/my-repo/:_password="abcd"
-//us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
-//us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com
+//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken="abcd"
 //us-west1-npm.pkg.dev/my-project/my-repo/:always-auth=true`;
 
     const wantMultipleContent =
         `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
-//us-west1-npm.pkg.dev/my-project/my-repo/:_password="abcd"
-//us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
-//us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com
+//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken="abcd"
 //us-west1-npm.pkg.dev/my-project/my-repo/:always-auth=true
 @cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/
-//asia-npm.pkg.dev/my-project/my-other-repo/:_password="abcd"
-//asia-npm.pkg.dev/my-project/my-other-repo/:username=oauth2accesstoken
-//asia-npm.pkg.dev/my-project/my-other-repo/:email=not.valid@email.com
+//asia-npm.pkg.dev/my-project/my-other-repo/:_authToken="abcd"
 //asia-npm.pkg.dev/my-project/my-other-repo/:always-auth=true`;
 
     const nonCBAConfig =
         `registry=https://npm.other.registry/my-project/my-repo/
-//npm.other.registry/my-project/my-repo/:_password="other.registry.creds"
-//npm.other.registry/my-project/my-repo/:username=oauth2accesstoken
-//npm.other.registry/my-project/my-repo/:email=not.valid@email.com
+//npm.other.registry/my-project/my-repo/:_authToken="other.registry.creds"
 //npm.other.registry/my-project/my-repo/:always-auth=true
+@old-registry=https://asia-npm.pkg/my-project/my-repo/
+//asia-npm.pkg/my-project/my-repo/:_password="old.registry.creds"
+//asia-npm.pkg/my-project/my-repo/:username=oauth2accesstoken
+//asia-npm.pkg/my-project/my-repo/:email=not.valid@email.com
+//asia-npm.pkg/my-project/my-repo/:always-auth=true
 //another.registry.com/:_authToken=another-registry-creds`;
+
+    const existingWithLegacyConfig =
+        `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_password="stale-creds"
+//us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
+//us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com
+@cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/
+//asia-npm.pkg.dev/my-project/my-other-repo/:_authToken="another-stale-creds"
+//asia-npm.pkg.dev/my-project/my-other-repo/:always-auth=true
+@ar=https://asia-npm.pkg/my-project/my-repo/
+//asia-npm.pkg/my-project/my-repo/:_password="json-key"
+//asia-npm.pkg/my-project/my-repo/:username=_json_key_base64
+//asia-npm.pkg/my-project/my-repo/:email=not.valid@email.com
+//asia-npm.pkg/my-project/my-repo/:always-auth=true`;
+
+    const wantExistingWithLegacyContent =
+        `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_password="YWJjZA=="
+//us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
+//us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com
+@cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/
+//asia-npm.pkg.dev/my-project/my-other-repo/:_authToken="abcd"
+//asia-npm.pkg.dev/my-project/my-other-repo/:always-auth=true
+@ar=https://asia-npm.pkg/my-project/my-repo/
+//asia-npm.pkg/my-project/my-repo/:_password="json-key"
+//asia-npm.pkg/my-project/my-repo/:username=_json_key_base64
+//asia-npm.pkg/my-project/my-repo/:email=not.valid@email.com
+//asia-npm.pkg/my-project/my-repo/:always-auth=true`;
 
     beforeEach(() => {
       fs.openSync(configPath, 'w');
@@ -101,6 +118,14 @@ describe('#auth', () => {
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantMultipleContent);
+    });
+
+    it('replace legacy creds', async () => {
+      fs.writeFileSync(configPath, existingWithLegacyConfig);
+      await buildartifactsAuth.updateConfigFile(configPath, creds);
+
+      const got = fs.readFileSync(configPath, 'utf8');
+      assert.equal(got, wantExistingWithLegacyContent);
     });
 
     it('no creds', async () => {

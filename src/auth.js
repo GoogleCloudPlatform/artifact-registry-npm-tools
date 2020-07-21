@@ -54,7 +54,7 @@ async function getCreds() {
           'https://cloud.google.com/artifact-registry/docs/access-control#compute');
     }
   }
-  return Buffer.from(creds).toString('base64');
+  return creds;
 }
 
 /**
@@ -72,15 +72,24 @@ async function updateConfigFile(configPath, creds) {
         return;
       }
 
-      const regex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_password=).*/g;
-      if (!contents.match(regex)) {
+      const regex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_authToken=).*/g;
+      const legacy_regex =
+          /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_password=).*(\n\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:username=oauth2accesstoken)/g;
+      let newContents;
+      // If config is basic auth, encrypt the token.
+      if (contents.match(legacy_regex)) {
+        encrypted_creds = Buffer.from(creds).toString('base64');
+        newContents = contents.replace(legacy_regex, `$1"${encrypted_creds}"$2`);
+        contents = newContents;
+      }
+      else if (!contents.match(regex)) {
         reject(new Error(
             'Artifact Registry config not found in ' + configPath +
             '\nPlease run `gcloud beta artifacts print-settings npm`.'));
         return;
       }
 
-      const newContents = contents.replace(regex, `$1"${creds}"`);
+      newContents = contents.replace(regex, `$1"${creds}"`);
 
       const tempConfigPath = configPath.replace('.npmrc', '.npmrc-temp');
       fs.writeFile(tempConfigPath, newContents, err => {
