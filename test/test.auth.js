@@ -88,6 +88,18 @@ describe('#auth', () => {
 //asia-npm.pkg/my-project/my-repo/:email=not.valid@email.com
 //asia-npm.pkg/my-project/my-repo/:always-auth=true`;
 
+    const legacyConfig =
+        `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_password="stale-creds"
+//us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
+//us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com`;
+
+    const wantLegacyContent =
+        `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_password="YWJjZA=="
+//us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
+//us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com`;
+
     beforeEach(() => {
       fs.openSync(configPath, 'w');
     });
@@ -120,12 +132,20 @@ describe('#auth', () => {
       assert.equal(got, wantMultipleContent);
     });
 
-    it('replace legacy creds', async () => {
+    it('replace creds with legacy', async () => {
       fs.writeFileSync(configPath, existingWithLegacyConfig);
       await buildartifactsAuth.updateConfigFile(configPath, creds);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantExistingWithLegacyContent);
+    });
+
+    it('replace legacy creds', async () => {
+      fs.writeFileSync(configPath, legacyConfig);
+      await buildartifactsAuth.updateConfigFile(configPath, creds);
+
+      const got = fs.readFileSync(configPath, 'utf8');
+      assert.equal(got, wantLegacyContent);
     });
 
     it('no creds', async () => {
