@@ -38,9 +38,7 @@ To use the module:
 
     ```
     registry=https://LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/
-    //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:_password=""
-    //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID:username=oauth2accesstoken
-    //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:email=not.valid@email.com
+    //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:_authToken=""
     //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:always-auth=true
     ```
 
