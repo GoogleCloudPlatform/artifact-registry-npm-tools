@@ -15,6 +15,8 @@
 
 const {GoogleAuth} = require('google-auth-library');
 const fs = require('fs');
+const util = require('util');
+const exec = util.promisify(require('child_process').exec);
 
 /**
  * Automatically choose the right client credentials based on the environment.
@@ -22,39 +24,61 @@ const fs = require('fs');
  * @return {!Promise<string>} cred Encrypted access token.
  */
 async function getCreds() {
-  let client;
   try {
-    const auth = new GoogleAuth({
-      scopes: 'https://www.googleapis.com/auth/cloud-platform',
-      projectId: 'unused-project'
-    });
-    client = await auth.getClient();
+    console.log(`Retrieving application default credentials...`)
+    const creds = await getApplicationDefaultCredentials();
+    console.log(`Retrieved application default credentials.`)
+    return creds;
   } catch (err) {
-    throw new Error(
-        'Fail to get credentials. Please run: \n' +
-        '`gcloud auth application-default login` or \n' +
-        '`export GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key>`');
+    console.log(`Failed to retrieve application default credentials: ${err.message}.`);
   }
+  try {
+    console.log(`Retrieving credentials from gcloud...`)
+    const creds = await getGcloudCredentials();
+    console.log(`Retrived credentials from the current active account logged into gcloud.`)
+    return creds;
+  } catch (err) {
+    console.log(`Failed to retrieve credentials from gcloud: ${err.message}.`)
+  }
+  throw new Error(
+      'Fail to get credentials. Please run: \n' +
+      '`gcloud auth application-default login` or \n' +
+      '`export GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key>`');
+}
 
-  let creds;
-  try {
-    creds = (await client.getAccessToken()).token;
-  } catch (err) {
+/**
+ * Retrieves the application default credentials.
+ *
+ * @return {!Promise<string>} cred Encrypted access token.
+ */
+async function getApplicationDefaultCredentials() {
+  const auth = new GoogleAuth({
+    scopes: 'https://www.googleapis.com/auth/cloud-platform',
+    projectId: 'unused-project'
+  });
+  const client = await auth.getClient();
+  const creds = (await client.getAccessToken()).token;
+  const tokenScopes = (await client.getTokenInfo(creds)).scopes;
+  if (!tokenScopes.includes(
+          'https://www.googleapis.com/auth/cloud-platform')) {
     throw new Error(
-        'Fail to get credentials. Please run: \n' +
-        '`gcloud auth application-default login` or \n' +
-        '`export GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key>`');
-  } finally {
-    const tokenScopes = (await client.getTokenInfo(creds)).scopes;
-    if (!tokenScopes.includes(
-            'https://www.googleapis.com/auth/cloud-platform')) {
-      throw new Error(
-          'Token has insufficient authentication scopes.\n' +
-          'Please configure access scope following instructions on ' +
-          'https://cloud.google.com/artifact-registry/docs/access-control#compute');
-    }
+        'Token has insufficient authentication scopes.\n' +
+        'Please configure access scope following instructions on ' +
+        'https://cloud.google.com/artifact-registry/docs/access-control#compute');
   }
-  return creds;
+  return creds; 
+}
+
+/**
+ * Retrieves the credentials from the current active account logged into gcloud.
+ *
+ * @return {!Promise<string>} cred Encrypted access token.
+ */
+async function getGcloudCredentials() {
+  const isWindows = process.platform === 'win32';
+  let gcloud = isWindows? "gcloud.cmd" : "gcloud";
+  const {stdout, stderr} = await exec(`${gcloud} auth print-access-token`);
+  return stdout;
 }
 
 /**
