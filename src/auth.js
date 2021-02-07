@@ -35,7 +35,7 @@ async function getCreds() {
   try {
     console.log(`Retrieving credentials from gcloud...`)
     const creds = await getGcloudCredentials();
-    console.log(`Retrived credentials from the current active account logged into gcloud.`)
+    console.log(`Retrieved credentials from the current active account from gcloud.`)
     return creds;
   } catch (err) {
     console.log(`Failed to retrieve credentials from gcloud: ${err.message}.`)
@@ -70,7 +70,7 @@ async function getApplicationDefaultCredentials() {
 }
 
 /**
- * Retrieves the credentials from the current active account logged into gcloud.
+ * Retrieves the credentials from the current active account from gcloud.
  *
  * @return {!Promise<string>} cred Encrypted access token.
  */
