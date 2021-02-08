@@ -12,8 +12,11 @@ Artifact Registry.
 For more details, see
 https://cloud.google.com/artifact-registry/docs/nodejs/authentication
 
-The module authenticates to Artifact Registry using
-[Google Application Default Credentials](https://developers.google.com/accounts/docs/application-default-credentials).
+The module automatically searches for credentials from the envrironment and authenticates to Artifact Registry. It looks for
+credentials in the following order:
+1. [Google Application Default Credentials](https://developers.google.com/accounts/docs/application-default-credentials).
+2. The current active account logged in via `gcloud auth login`.
+3. If neither of them exist, an error occurs.
 
 NOTE: This module would update credentials for **all** Artifact Registry
 repositories. It would not be suitable if you use multiple account credentials
@@ -21,15 +24,19 @@ in npmrc file.
 
 To use the module:
 
-1.  Log in
+1.  Log in as a service account:
 
-    Using end user credentials:
-
-    `$ gcloud auth application-default login`
-
-    Using service account:
+    Using a JSON file that contains a service account key:
 
     `$ export GOOGLE_APPLICATION_CREDENTIALS=[path/to/key.json]`
+    
+    Using gcloud:
+
+    `$ gcloud auth application-default login` 
+    
+    or log in as an end user:
+    
+    `$ gcloud auth login`
 
 2.  Add settings to connect to the repository to .npmrc. Use the output from the
     following command:
@@ -88,3 +95,4 @@ To use the module:
         Run the script
 
         `$ npm run artifactregistry-login`
+
