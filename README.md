@@ -24,19 +24,21 @@ in npmrc file.
 
 To use the module:
 
-1.  Log in as a service account:
-
-    Using a JSON file that contains a service account key:
-
-    `$ export GOOGLE_APPLICATION_CREDENTIALS=[path/to/key.json]`
+1.  Log in
     
-    Using gcloud:
+    a. Option 1: log in as a service account:
 
-    `$ gcloud auth application-default login` 
+      (1). Using a JSON file that contains a service account key:
+
+           `$ export GOOGLE_APPLICATION_CREDENTIALS=[path/to/key.json]`
     
-    or log in as an end user:
+      (2). Or using gcloud:
+
+           `$ gcloud auth application-default login` 
     
-    `$ gcloud auth login`
+    b. Option 2: log in as an end user via gcloud:
+    
+       `$ gcloud auth login`
 
 2.  Add settings to connect to the repository to .npmrc. Use the output from the
     following command:
