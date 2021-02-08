@@ -15,7 +15,8 @@
  */
 const assert = require('assert');
 const fs = require('fs');
-const buildartifactsAuth = require('../src/auth');
+const rewire = require("rewire");
+var artifactRegistryAuth = rewire('../src/auth');
 
 const configPath = __dirname + '/.npmrc';
 const creds = 'abcd';
@@ -110,7 +111,7 @@ describe('#auth', () => {
 
     it('add new', async () => {
       fs.writeFileSync(configPath, newConfig);
-      await buildartifactsAuth.updateConfigFile(configPath, creds);
+      await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantContent);
@@ -118,7 +119,7 @@ describe('#auth', () => {
 
     it('replace old creds', async () => {
       fs.writeFileSync(configPath, existingConfig);
-      await buildartifactsAuth.updateConfigFile(configPath, creds);
+      await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantContent);
@@ -126,7 +127,7 @@ describe('#auth', () => {
 
     it('replace multiple creds', async () => {
       fs.writeFileSync(configPath, multipleConfig);
-      await buildartifactsAuth.updateConfigFile(configPath, creds);
+      await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantMultipleContent);
@@ -134,7 +135,7 @@ describe('#auth', () => {
 
     it('replace creds with legacy', async () => {
       fs.writeFileSync(configPath, existingWithLegacyConfig);
-      await buildartifactsAuth.updateConfigFile(configPath, creds);
+      await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantExistingWithLegacyContent);
@@ -142,7 +143,7 @@ describe('#auth', () => {
 
     it('replace legacy creds', async () => {
       fs.writeFileSync(configPath, legacyConfig);
-      await buildartifactsAuth.updateConfigFile(configPath, creds);
+      await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantLegacyContent);
@@ -150,13 +151,46 @@ describe('#auth', () => {
 
     it('no creds', async () => {
       fs.writeFileSync(configPath, nonCBAConfig);
-      assert.rejects(buildartifactsAuth.updateConfigFile(configPath, creds));
+      assert.rejects(artifactRegistryAuth.updateConfigFile(configPath, creds));
     });
   });
 
   describe('#non-existing', () => {
     it('.npmrc', async () => {
-      assert.rejects(buildartifactsAuth.updateConfigFile(configPath, creds));
+      assert.rejects(artifactRegistryAuth.updateConfigFile(configPath, creds));
+    });
+  });
+
+  describe('#getCreds', () => {
+    it('gets application default credentials first', async () => {
+      artifactRegistryAuth.__set__('getApplicationDefaultCredentials', function(){
+        return Promise.resolve("valid-token-adc")});
+      artifactRegistryAuth.__set__('getGcloudCredentials', function(){
+        return Promise.resolve("valid-token-gcloud")});
+      let gotCreds = await artifactRegistryAuth.getCreds();
+      assert.equal(gotCreds, "valid-token-adc");
+    });
+
+    it ('gets gcloud credentials if application default credentials do not exist', async() => {
+      artifactRegistryAuth.__set__('getApplicationDefaultCredentials', function(){
+        throw new Error("invalid-token-adc")});
+      artifactRegistryAuth.__set__('getGcloudCredentials', function(){
+        return Promise.resolve("valid-token-gcloud")});
+      let gotCreds = await artifactRegistryAuth.getCreds();
+      assert.equal(gotCreds, "valid-token-gcloud");
+    });
+
+    it ('errors if neither adc or gcloud creds are valid', async() => {
+      artifactRegistryAuth.__set__('getApplicationDefaultCredentials', function(){
+          throw new Error("invalid-token-adc")});
+      artifactRegistryAuth.__set__('getGcloudCredentials', function(){
+          throw new Error("invalid-token-adc")});
+      assert.rejects(artifactRegistryAuth.getCreds(), {
+        name: 'Error',
+        message: 'Fail to get credentials. Please run: \n' +
+            '`gcloud auth application-default login` or \n' +
+            '`export GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key>`'
+      });
     });
   });
 });
