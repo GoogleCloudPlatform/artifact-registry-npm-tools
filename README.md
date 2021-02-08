@@ -26,17 +26,17 @@ To use the module:
 
 1.  Log in
     
-    a. Option 1: log in as a service account:
+    Option 1: log in as a service account:
 
-      (1). Using a JSON file that contains a service account key:
+    (1). Using a JSON file that contains a service account key:
 
            `$ export GOOGLE_APPLICATION_CREDENTIALS=[path/to/key.json]`
     
-      (2). Or using gcloud:
+    (2). Or using gcloud:
 
            `$ gcloud auth application-default login` 
     
-    b. Option 2: log in as an end user via gcloud:
+    Option 2: log in as an end user via gcloud:
     
        `$ gcloud auth login`
 
