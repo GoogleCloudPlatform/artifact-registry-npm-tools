@@ -15,11 +15,22 @@
  */
 const assert = require('assert');
 const fs = require('fs');
+const os = require('os');
+const path = require('path');
 const rewire = require("rewire");
 var artifactRegistryAuth = rewire('../src/auth');
 
-const configPath = __dirname + '/.npmrc';
 const creds = 'abcd';
+
+function getTestDir(test) {
+  return path.join(os.tmpdir(), test);
+}
+
+// Writing to a file whose name starts with a dot is tricky on Windows, thus
+// changing the name of the config file to "npmrc".
+function getConfigPath(test) {
+  return path.join(os.tmpdir(), test, '/npmrc');
+}
 
 describe('#auth', () => {
   describe('#updateConfigFile(configPath, creds)', () => {
@@ -101,15 +112,20 @@ describe('#auth', () => {
 //us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken
 //us-west1-npm.pkg.dev/my-project/my-repo/:email=not.valid@email.com`;
 
-    beforeEach(() => {
-      fs.openSync(configPath, 'w');
+    beforeEach(function(){
+      const testDir = getTestDir(this.currentTest.title);
+      if (!fs.existsSync(testDir)){
+          fs.mkdirSync(testDir);
+      }
+      fs.openSync(getConfigPath(this.currentTest.title), 'w');
     });
 
-    afterEach(() => {
-      fs.unlinkSync(configPath);
+    afterEach(function(){
+      fs.unlinkSync(getConfigPath(this.currentTest.title));
     });
 
-    it('add new', async () => {
+    it('add new', async function(){
+      configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, newConfig);
       await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
@@ -117,7 +133,8 @@ describe('#auth', () => {
       assert.equal(got, wantContent);
     });
 
-    it('replace old creds', async () => {
+    it('replace old creds', async function(){
+      configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, existingConfig);
       await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
@@ -125,7 +142,8 @@ describe('#auth', () => {
       assert.equal(got, wantContent);
     });
 
-    it('replace multiple creds', async () => {
+    it('replace multiple creds', async function(){
+      configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, multipleConfig);
       await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
@@ -133,7 +151,8 @@ describe('#auth', () => {
       assert.equal(got, wantMultipleContent);
     });
 
-    it('replace creds with legacy', async () => {
+    it('replace creds with legacy', async function(){
+      configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, existingWithLegacyConfig);
       await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
@@ -141,7 +160,8 @@ describe('#auth', () => {
       assert.equal(got, wantExistingWithLegacyContent);
     });
 
-    it('replace legacy creds', async () => {
+    it('replace legacy creds', async function(){
+      configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, legacyConfig);
       await artifactRegistryAuth.updateConfigFile(configPath, creds);
 
@@ -149,14 +169,16 @@ describe('#auth', () => {
       assert.equal(got, wantLegacyContent);
     });
 
-    it('no creds', async () => {
+    it('no creds', async function() {
+      configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, nonCBAConfig);
       assert.rejects(artifactRegistryAuth.updateConfigFile(configPath, creds));
     });
   });
 
   describe('#non-existing', () => {
-    it('.npmrc', async () => {
+    it('.npmrc', async function(){
+      configPath = getConfigPath(this.test.title);
       assert.rejects(artifactRegistryAuth.updateConfigFile(configPath, creds));
     });
   });
