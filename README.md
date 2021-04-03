@@ -43,7 +43,7 @@ To use the module:
 2.  Add settings to connect to the repository to .npmrc. Use the output from the
     following command:
 
-    `$ gcloud beta artifacts print-settings npm`
+    `$ gcloud artifacts print-settings npm`
 
     ```
     registry=https://LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/
