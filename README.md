@@ -12,7 +12,7 @@ Artifact Registry.
 For more details, see
 https://cloud.google.com/artifact-registry/docs/nodejs/authentication
 
-The module automatically searches for credentials from the envrironment and authenticates to Artifact Registry. It looks for
+The module automatically searches for credentials from the environment and authenticates to Artifact Registry. It looks for
 credentials in the following order:
 1. [Google Application Default Credentials](https://developers.google.com/accounts/docs/application-default-credentials).
 2. The current active account logged in via `gcloud auth login`.
