@@ -7,7 +7,7 @@ packages using Artifact Registry.
 
 The Artifact Registry google-artifactregistry-auth module is an npm package
 which allows you to configure npm to interact with npm private repositories
-stored in Artifact Registry.
+in Artifact Registry.
 
 For more details, see
 https://cloud.google.com/artifact-registry/docs/nodejs/authentication
