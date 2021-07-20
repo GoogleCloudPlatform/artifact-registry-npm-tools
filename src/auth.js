@@ -78,7 +78,8 @@ async function getGcloudCredentials() {
   const isWindows = process.platform === 'win32';
   let gcloud = isWindows? "gcloud.cmd" : "gcloud";
   const {stdout, stderr} = await exec(`${gcloud} auth print-access-token`);
-  return stdout;
+  // the token from gcloud auth print-access-token has a newline in the end
+  return stdout.trim();
 }
 
 /**
