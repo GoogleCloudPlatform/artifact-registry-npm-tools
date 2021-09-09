@@ -12,9 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 const {GoogleAuth} = require('google-auth-library');
-const fs = require('fs');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
@@ -82,59 +80,7 @@ async function getGcloudCredentials() {
   return stdout.trim();
 }
 
-/**
- * Update an npmrc file with credentials.
- *
- * @param {string} configPath Path to npmrc file.
- * @param {string} creds Encrypted credentials.
- * @return {!Promise<undefined>}
- */
-async function updateConfigFile(configPath, creds) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(configPath, 'utf8', (err, contents) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-
-      const regex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_authToken=).*/g;
-      const legacy_regex =
-          /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_password=).*(\n\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:username=oauth2accesstoken)/g;
-      let newContents;
-      // If config is basic auth, encrypt the token.
-      if (contents.match(legacy_regex)) {
-        encrypted_creds = Buffer.from(creds).toString('base64');
-        newContents = contents.replace(legacy_regex, `$1"${encrypted_creds}"$2`);
-        contents = newContents;
-      }
-      else if (!contents.match(regex)) {
-        reject(new Error(
-            'Artifact Registry config not found in ' + configPath +
-            '\nPlease run `gcloud beta artifacts print-settings npm`.'));
-        return;
-      }
-
-      newContents = contents.replace(regex, `$1"${creds}"`);
-
-      const tempConfigPath = configPath.replace('.npmrc', '.npmrc-temp');
-      fs.writeFile(tempConfigPath, newContents, err => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        fs.rename(tempConfigPath, configPath, err => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve();
-        });
-      });
-    });
-  });
-}
 
 module.exports = {
-  updateConfigFile,
   getCreds
 };

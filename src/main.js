@@ -14,7 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const os = require('os');
+const yargs = require('yargs/yargs')
+const { hideBin } = require('yargs/helpers')
 const auth = require('./auth');
+const update = require('./update');
 
 /**
  * Get credentials and update .npmrc file.
@@ -22,7 +26,7 @@ const auth = require('./auth');
  * Usage:
  * - Add to scripts in package.json:
  * "scripts": {
- *   "buildartifacts-auth": "google-buildartifacts-auth [path/to/.npmrc]",
+ *   "artifactregistry-auth": "google-artifactregistry-auth --from-config=[path/to/.npmrc] --to-config=[path/to/.npmrc]",
  *    ...
  * },
  * - Or run directly $ ./src/main.js [path/to/.npmrc]
@@ -31,19 +35,32 @@ const auth = require('./auth');
  */
 async function main() {
   try {
-    const allArgs = process.argv;
-    if (allArgs.length > 3) {
-      throw new Error(
-          'Incorrect number of arguments. User can only specify the path to npmrc file.');
-    }
-    let configPath = __dirname + '/.npmrc';
-    if (allArgs.length == 3) {
-      configPath = allArgs[2];
-    }
+    const allArgs = yargs(hideBin(process.argv))
+      .command('$0 [config]', 'Refresh the tokens for .npmrc config file', (yargs) => {
+        yargs.positional('config', {
+          type: 'string',
+          describe: '(Deprecated) Path to the .npmrc file to update auth tokens'
+        })
+      })
+      .option('project-config', {
+        type: 'string',
+        describe: 'Path to the project .npmrc file to read re configs',
+        default: '.npmrc'
+      })
+      .option('user-config', {
+        type: 'string',
+        describe: 'Path to the user .npmrc file to write auth tokens',
+        default: `${os.homedir()}/.npmrc`
+      })
+      .help()
+      .argv;
 
+    const configPath = allArgs.config;
+    const projectConfig = configPath || allArgs.projectConfig;
+    const userConfig = configPath || allArgs.userConfig;
     const creds = await auth.getCreds();
-    await auth.updateConfigFile(configPath, creds);
-    console.log('Credentials updated in ' + configPath);
+    console.log(projectConfig);
+    await update.updateConfigFiles(projectConfig, userConfig, creds);
   } catch (err) {
     console.error(err);
     process.exit(1);
