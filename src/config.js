@@ -79,17 +79,19 @@ class PasswordConfig {
 
 function parseConfig(text) {
   let m = text.match(registryRegex);
-  if (m?.length == 3) {
-    scope = m[1];
-    scope = scope?.replace(':', '')
+  if (m && m.length == 3) {
+    let scope = m[1];
+    if (scope) {
+      scope = scope.replace(':', '')
+    }
     return new RegistryConfig(scope, m[2]);
   }
   m = text.match(authTokenRegex);
-  if (m?.length == 3) {
+  if (m && m.length == 3) {
     return new AuthTokenConfig(m[1], m[2]);
   }
   m = text.match(passwordRegex);
-  if (m?.length == 3) {
+  if (m && m.length == 3) {
     return new PasswordConfig(m[1], m[2]);
   }
   return new Config(text);
