@@ -13,7 +13,6 @@
 // limitations under the License.
 
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const readline = require('readline');
 const c = require('./config');
@@ -95,8 +94,8 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
 
   // Write to the user npmrc file first so that if it failed the project npmrc file
   // would still be untouched.
-  await fs.promises.writeFile(toConfigPath, toConfigs.join(os.EOL));
-  await fs.promises.writeFile(fromConfigPath, fromConfigs.join(os.EOL));
+  await fs.promises.writeFile(toConfigPath, toConfigs.join(`\n`));
+  await fs.promises.writeFile(fromConfigPath, fromConfigs.join(`\n`));
 }
 
 /**
