@@ -49,7 +49,7 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
   // - auth token config, print a warning and remove it.
   // - password config, print a warning and move it to the user npmrc file.
   // - everything else, keep it in the project npmrc file.
-  for (const line of fromConfigLines.split(os.EOL)) {
+  for (const line of fromConfigLines.split('\n')) {
     let config = c.parseConfig(line);
     switch (config.type) {
       case c.configType.Registry:
@@ -72,7 +72,7 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
     const toConfigLines = await fs.promises.readFile(toConfigPath, "utf8")
 
     // refresh tokens for all auth token configs; keep everything else unchanged.
-    for (const line of toConfigLines.split(os.EOL)) {
+    for (const line of toConfigLines.split('\n')) {
       if (line == "") {
         continue;
       }
