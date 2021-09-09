@@ -26,7 +26,7 @@ const update = require('./update');
  * Usage:
  * - Add to scripts in package.json:
  * "scripts": {
- *   "artifactregistry-auth": "google-artifactregistry-auth --from-config=[path/to/.npmrc] --to-config=[path/to/.npmrc]",
+ *   "artifactregistry-auth": "google-artifactregistry-auth --project-config=[path/to/.npmrc] --user-config=[path/to/.npmrc]",
  *    ...
  * },
  * - Or run directly $ ./src/main.js [path/to/.npmrc]
@@ -44,23 +44,26 @@ async function main() {
       })
       .option('project-config', {
         type: 'string',
-        describe: 'Path to the project .npmrc file to read re configs',
+        describe: 'Path to the project .npmrc file to read registry configs from',
         default: '.npmrc'
       })
       .option('user-config', {
         type: 'string',
-        describe: 'Path to the user .npmrc file to write auth tokens',
+        describe: 'Path to the user .npmrc file to write auth tokens to',
         default: `${os.homedir()}/.npmrc`
       })
       .help()
       .argv;
 
     const configPath = allArgs.config;
-    const projectConfig = configPath || allArgs.projectConfig;
-    const userConfig = configPath || allArgs.userConfig;
     const creds = await auth.getCreds();
-    console.log(projectConfig);
-    await update.updateConfigFiles(projectConfig, userConfig, creds);
+    if (configPath) {
+      console.warn('Updating project .npmrc inline is deprecated and may no longer be supported\n'
+          + 'in future versions. Please run the plugin with `--project-config` and `--user-config`.');
+      await update.updateConfigFile(configPath, creds);
+    } else {
+      await update.updateConfigFiles(allArgs.projectConfig, allArgs.userConfig, creds);
+    }    
   } catch (err) {
     console.error(err);
     process.exit(1);

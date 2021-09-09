@@ -32,4 +32,4 @@ describe('#config', () => {
     assert.deepEqual(c.parseConfig("registry=https://us-west1-npm.pkg.dev/myproj/myrepo/"), new c.RegistryConfig(undefined, "//us-west1-npm.pkg.dev/myproj/myrepo/"));
     assert.deepEqual(c.parseConfig("@myscope:registry=https://us-west1-npm.pkg.dev/myproj/myrepo/"), new c.RegistryConfig("@myscope", "//us-west1-npm.pkg.dev/myproj/myrepo/"));
   })
-})  
+})
