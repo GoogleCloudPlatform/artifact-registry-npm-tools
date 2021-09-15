@@ -26,10 +26,10 @@ const update = require('./update');
  * Usage:
  * - Add to scripts in package.json:
  * "scripts": {
- *   "artifactregistry-auth": "google-artifactregistry-auth --project-config=[path/to/.npmrc] --user-config=[path/to/.npmrc]",
+ *   "artifactregistry-auth": "google-artifactregistry-auth --repo-config=[./.npmrc] --credential-config=[~/.npmrc]",
  *    ...
  * },
- * - Or run directly $ ./src/main.js [path/to/.npmrc]
+ * - Or run directly $ ./src/main.js --repo-config=[./.npmrc] --credential-config=[~/.npmrc]
  *
  * @return {!Promise<undefined>}
  */
@@ -42,14 +42,14 @@ async function main() {
           describe: '(Deprecated) Path to the .npmrc file to update auth tokens'
         })
       })
-      .option('project-config', {
+      .option('repo-config', {
         type: 'string',
-        describe: 'Path to the project .npmrc file to read registry configs from',
+        describe: 'Path to the .npmrc file to read registry configs from, usually the project-level npmrc file',
         default: '.npmrc'
       })
       .option('user-config', {
         type: 'string',
-        describe: 'Path to the user .npmrc file to write auth tokens to',
+        describe: 'Path to the .npmrc file to write credentials to, usually the user-level npmrc file',
         default: `${os.homedir()}/.npmrc`
       })
       .help()
@@ -59,7 +59,7 @@ async function main() {
     const creds = await auth.getCreds();
     if (configPath) {
       console.warn('Updating project .npmrc inline is deprecated and may no longer be supported\n'
-          + 'in future versions. Please run the plugin with `--project-config` and `--user-config`.');
+          + 'in future versions. Please run the plugin with `--repo-config` and `--credential-config`.');
       await update.updateConfigFile(configPath, creds);
     } else {
       await update.updateConfigFiles(allArgs.projectConfig, allArgs.userConfig, creds);
