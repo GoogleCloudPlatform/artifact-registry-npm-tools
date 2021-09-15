@@ -34,9 +34,9 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
     return;
   }
 
-  let fromConfigs = new Array();
-  let toConfigs = new Array();
-  let registryAuthConfigs = new Map();
+  const fromConfigs = [];
+  const toConfigs = [];
+  const registryAuthConfigs = new Map();
 
   // We do not use basic auth any more in `gcloud artifacts print-settings`; replace them.
   let fromConfigLines = await fs.promises.readFile(fromConfigPath, "utf8")
@@ -49,11 +49,18 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
   // - password config, print a warning and move it to the user npmrc file.
   // - everything else, keep it in the project npmrc file.
   for (const line of fromConfigLines.split('\n')) {
-    let config = c.parseConfig(line);
+    let config = c.parseConfig(line.trim());
     switch (config.type) {
       case c.configType.Registry:
         fromConfigs.push(config);
-        registryAuthConfigs.set(config.registry, new c.AuthTokenConfig(config.registry, creds));
+        registryAuthConfigs.set(config.registry, {
+          type: c.configType.AuthToken,
+          registry: config.registry,
+          token: creds,
+          toString: function() {
+            return `${this.registry}:_authToken=${this.token}`;
+          }
+        });
         break;
       case c.configType.AuthToken:
         console.warn(`Found an auth token for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
@@ -75,12 +82,13 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
       if (line == "") {
         continue;
       }
-      let config = c.parseConfig(line);
+      let config = c.parseConfig(line.trim());
       if (config.type == c.configType.AuthToken || config.type == c.configType.Password) {
         registryAuthConfigs.delete(config.registry);
       }
+      // refresh the token.
       if (config.type == c.configType.AuthToken) {
-        config.refreshToken(creds);
+        config.token = creds;
       }
       toConfigs.push(config);
     }
@@ -88,9 +96,7 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
 
   // Registries that we need to move password configs from the project npmrc file
   // or write a new auth token config.
-  for (const config of registryAuthConfigs.values()) {
-    toConfigs.push(config);
-  }
+  toConfigs.push(...registryAuthConfigs.values());
 
   // Write to the user npmrc file first so that if it failed the project npmrc file
   // would still be untouched.

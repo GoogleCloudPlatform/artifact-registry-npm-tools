@@ -13,9 +13,9 @@
 // limitations under the License.
 
 
-const registryRegex = /(@[a-zA-Z1-9-]+:)?registry=https:(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/)/;
-const authTokenRegex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/):_authToken=(.*)/;
-const passwordRegex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/):_password=(.*)/;
+const registryRegex = /(@[a-zA-Z0-9-]+:)?registry=https:(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/)/;
+const authTokenRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_authToken=(.*)/;
+const passwordRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_password=(.*)/;
 
 const configType = {
   Default: "Default",
@@ -24,84 +24,49 @@ const configType = {
   Password: "Password",
 }
 
-class Config {
-  constructor(text) {
-    this.text = text;
-    this.type = configType.Default;
-  }
-
-  toString() {
-    return this.text;
-  }
-}
-
-
-class RegistryConfig {
-  constructor(scope, registry) {
-    this.scope = scope;
-    this.registry = registry;
-    this.type = configType.Registry;
-  }
-
-  toString() {
-    let prefix = this.scope ? this.scope + ':' : '';
-    return `${prefix}registry=https:${this.registry}`;
-  }
-}
-
-class AuthTokenConfig {
-  constructor(registry, token) {
-    this.registry = registry;
-    this.token = token;
-    this.type = configType.AuthToken;
-  }
-
-  toString() {
-    return `${this.registry}:_authToken=${this.token}`;
-  }
-
-  refreshToken(token) {
-    this.token = token;
-  }
-}
-
-class PasswordConfig {
-  constructor(registry, password) {
-    this.registry = registry;
-    this.password = password;
-    this.type = configType.Password;
-  }
-
-  toString() {
-    return `${this.registry}:_password=${this.password}`;
-  }
-}
-
 function parseConfig(text) {
   let m = text.match(registryRegex);
-  if (m && m.length == 3) {
-    let scope = m[1];
-    if (scope) {
-      scope = scope.replace(':', '')
+  if (m) {
+    return {
+      type: configType.Registry,
+      scope: m[1] ? m[1].replace(':', '') : m[1],
+      registry: m[2],
+      toString: function() {
+        return `${this.scope ? this.scope + ':' : ''}registry=https:${this.registry}`;
+      }
     }
-    return new RegistryConfig(scope, m[2]);
   }
   m = text.match(authTokenRegex);
-  if (m && m.length == 3) {
-    return new AuthTokenConfig(m[1], m[2]);
+  if (m) {
+    return {
+      type: configType.AuthToken,
+      registry: m[1],
+      token: m[2],
+      toString: function() {
+        return `${this.registry}:_authToken=${this.token}`;
+      }
+    }
   }
   m = text.match(passwordRegex);
-  if (m && m.length == 3) {
-    return new PasswordConfig(m[1], m[2]);
+  if (m) {
+    return {
+      type: configType.Password,
+      registry: m[1],
+      password: m[2],
+      toString: function() {
+        return `${this.registry}:_password=${this.password}`;
+      }
+    }
   }
-  return new Config(text);
+  return {
+    type: configType.Default,
+    toString: function() {
+      return text;
+    }
+  }
 }
 
 module.exports = {
   configType,
-  Config,
-  RegistryConfig,
-  AuthTokenConfig,
-  PasswordConfig,
   parseConfig
 };
