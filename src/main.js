@@ -47,7 +47,7 @@ async function main() {
         describe: 'Path to the .npmrc file to read registry configs from, usually the project-level npmrc file',
         default: '.npmrc'
       })
-      .option('user-config', {
+      .option('credential-config', {
         type: 'string',
         describe: 'Path to the .npmrc file to write credentials to, usually the user-level npmrc file',
         default: `${os.homedir()}/.npmrc`
@@ -62,7 +62,7 @@ async function main() {
           + 'in future versions. Run the plugin with `--repo-config` and `--credential-config`.');
       await update.updateConfigFile(configPath, creds);
     } else {
-      await update.updateConfigFiles(allArgs.projectConfig, allArgs.userConfig, creds);
+      await update.updateConfigFiles(allArgs.repoConfig, allArgs.credentialConfig, creds);
     }    
   } catch (err) {
     console.error(err);
