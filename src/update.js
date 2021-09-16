@@ -129,7 +129,7 @@ async function updateConfigFile(configPath, creds) {
   else if (!contents.match(regex)) {
     throw new Error(
         'Artifact Registry config not found in ' + configPath +
-        '\nPlease run `gcloud beta artifacts print-settings npm`.');
+        '\nRun `gcloud beta artifacts print-settings npm`.');
   }
   newContents = contents.replace(regex, `$1"${creds}"`);
   const tempConfigPath = configPath.replace('.npmrc', '.npmrc-temp');
