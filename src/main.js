@@ -59,7 +59,7 @@ async function main() {
     const creds = await auth.getCreds();
     if (configPath) {
       console.warn('Updating project .npmrc inline is deprecated and may no longer be supported\n'
-          + 'in future versions. Please run the plugin with `--repo-config` and `--credential-config`.');
+          + 'in future versions. Run the plugin with `--repo-config` and `--credential-config`.');
       await update.updateConfigFile(configPath, creds);
     } else {
       await update.updateConfigFiles(allArgs.projectConfig, allArgs.userConfig, creds);
