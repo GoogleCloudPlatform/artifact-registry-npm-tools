@@ -18,6 +18,7 @@ const os = require('os');
 const yargs = require('yargs/yargs')
 const { hideBin } = require('yargs/helpers')
 const auth = require('./auth');
+const { logger } = require('./logger');
 const update = require('./update');
 
 /**
@@ -52,9 +53,15 @@ async function main() {
         describe: 'Path to the .npmrc file to write credentials to, usually the user-level npmrc file',
         default: `${os.homedir()}/.npmrc`
       })
+      .option('verbose', {
+        type: 'boolean',
+        describe: 'Set log level to verbose',
+        default: false
+      })
       .help()
       .argv;
 
+    logger.logVerbose = allArgs.verbose;
     const configPath = allArgs.config;
     const creds = await auth.getCreds();
     if (configPath) {
@@ -63,7 +70,8 @@ async function main() {
       await update.updateConfigFile(configPath, creds);
     } else {
       await update.updateConfigFiles(allArgs.repoConfig, allArgs.credentialConfig, creds);
-    }    
+    }
+    console.log("Success!");
   } catch (err) {
     console.error(err);
     process.exit(1);
