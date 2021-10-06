@@ -16,6 +16,7 @@ const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
 const c = require('./config');
+const {logger} = require('./logger');
 
 /**
  * Update the project and user npmrc files.
@@ -63,10 +64,10 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
         });
         break;
       case c.configType.AuthToken:
-        console.warn(`Found an auth token for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
+        logger.debug(`Found an auth token for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
         break;
       case c.configType.Password:
-        console.warn(`Found password for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
+        logger.debug(`Found password for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
         registryAuthConfigs.set(config.registry, config);
         break;
       default:

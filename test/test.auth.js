@@ -61,7 +61,7 @@ describe('#auth', () => {
       assert.rejects(artifactRegistryAuth.getCreds(), {
         name: 'Error',
         message: 'Fail to get credentials. Please run: \n' +
-            '`gcloud auth application-default login` or \n' +
+            '`gcloud auth application-default login`, `gcloud auth login`, or \n' +
             '`export GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key>`'
       });
     });

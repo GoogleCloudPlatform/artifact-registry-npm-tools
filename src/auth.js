@@ -15,6 +15,7 @@
 const {GoogleAuth} = require('google-auth-library');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const {logger} = require('./logger');
 
 /**
  * Automatically choose the right client credentials based on the environment.
@@ -23,24 +24,22 @@ const exec = util.promisify(require('child_process').exec);
  */
 async function getCreds() {
   try {
-    console.log(`Retrieving application default credentials...`)
+    logger.log(`Retrieving application default credentials...`)
     const creds = await getApplicationDefaultCredentials();
-    console.log(`Retrieved application default credentials.`)
     return creds;
   } catch (err) {
-    console.log(`Failed to retrieve application default credentials: ${err.message}.`);
+    logger.debug(`Failed to retrieve application default credentials: ${err.message}. Fall back to gcloud credentials.`);
   }
   try {
-    console.log(`Retrieving credentials from gcloud...`)
+    logger.log(`Retrieving credentials from gcloud...`)
     const creds = await getGcloudCredentials();
-    console.log(`Retrieved credentials from the current active account from gcloud.`)
     return creds;
   } catch (err) {
-    console.log(`Failed to retrieve credentials from gcloud: ${err.message}.`)
+    logger.debug(`Failed to retrieve credentials from gcloud: ${err.message}.`)
   }
   throw new Error(
       'Fail to get credentials. Please run: \n' +
-      '`gcloud auth application-default login` or \n' +
+      '`gcloud auth application-default login`, `gcloud auth login`, or \n' +
       '`export GOOGLE_APPLICATION_CREDENTIALS=<path/to/service/account/key>`');
 }
 
