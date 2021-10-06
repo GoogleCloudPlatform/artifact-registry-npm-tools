@@ -64,10 +64,10 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
         });
         break;
       case c.configType.AuthToken:
-        logger.verbose(`Found an auth token for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
+        logger.debug(`Found an auth token for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
         break;
       case c.configType.Password:
-        logger.verbose(`Found password for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
+        logger.debug(`Found password for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
         registryAuthConfigs.set(config.registry, config);
         break;
       default:

@@ -12,15 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-let logger = {
+module.exports.logger = {
   logVerbose: false,
-  verbose: function(content) {
+  debug: function(content) {
     if (this.logVerbose) {
-    	console.log(content);
+      console.log(content);
     }
+  },
+  log: function(content) {
+    console.log(content);
+  },
+  warn: function(content) {
+    console.warn(content);
+  },
+  error: function(content) {
+    console.error(content);
   }
-}
-
-module.exports = {
-  logger,
 };

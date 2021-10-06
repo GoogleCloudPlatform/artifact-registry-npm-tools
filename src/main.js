@@ -40,23 +40,23 @@ async function main() {
       .command('$0 [config]', 'Refresh the tokens for .npmrc config file', (yargs) => {
         yargs.positional('config', {
           type: 'string',
-          describe: '(Deprecated) Path to the .npmrc file to update auth tokens'
+          describe: '(Deprecated) Path to the .npmrc file to update auth tokens',
         })
       })
       .option('repo-config', {
         type: 'string',
         describe: 'Path to the .npmrc file to read registry configs from, usually the project-level npmrc file',
-        default: '.npmrc'
+        default: '.npmrc',
       })
       .option('credential-config', {
         type: 'string',
         describe: 'Path to the .npmrc file to write credentials to, usually the user-level npmrc file',
-        default: `${os.homedir()}/.npmrc`
+        default: `${os.homedir()}/.npmrc`,
       })
       .option('verbose', {
         type: 'boolean',
         describe: 'Set log level to verbose',
-        default: false
+        default: false,
       })
       .help()
       .argv;

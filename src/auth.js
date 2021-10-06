@@ -24,18 +24,18 @@ const {logger} = require('./logger');
  */
 async function getCreds() {
   try {
-    console.log(`Retrieving application default credentials...`)
+    logger.log(`Retrieving application default credentials...`)
     const creds = await getApplicationDefaultCredentials();
     return creds;
   } catch (err) {
-    logger.verbose(`Failed to retrieve application default credentials: ${err.message}. Fall back to gcloud credentials.`);
+    logger.debug(`Failed to retrieve application default credentials: ${err.message}. Fall back to gcloud credentials.`);
   }
   try {
-    console.log(`Retrieving credentials from gcloud...`)
+    logger.log(`Retrieving credentials from gcloud...`)
     const creds = await getGcloudCredentials();
     return creds;
   } catch (err) {
-    logger.verbose(`Failed to retrieve credentials from gcloud: ${err.message}.`)
+    logger.debug(`Failed to retrieve credentials from gcloud: ${err.message}.`)
   }
   throw new Error(
       'Fail to get credentials. Please run: \n' +
