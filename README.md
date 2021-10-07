@@ -47,7 +47,6 @@ To use the module:
 
     ```
     registry=https://LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/
-    //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:_authToken=""
     //LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID/:always-auth=true
     ```
 
@@ -63,17 +62,22 @@ To use the module:
 
     1.  Run the module outside of the directory containing the target npmrc file
 
-        `$ npx google-artifactregistry-auth [path/to/.npmrc]`
+        `$ npx google-artifactregistry-auth --repo-config=[./.npmrc] --credential-config=[~/.npmrc]`
 
     2.  Include the command in the scripts in package.json
 
         ```
         "scripts": {
-            "artifactregistry-login": "npx google-artifactregistry-auth [path/to/.npmrc]",
+            "artifactregistry-login": "npx google-artifactregistry-auth --repo-config=[./.npmrc] --credential-config=[~/.npmrc]",
         }
         ```
+        
+        Where:
+        - `--repo-config` is the `.npmrc` file with your repository settings. If you don't specify this flag, 
+        the default location is the current directory.
+        - `--credential-config` is the path to the `.npmrc` file where you want to write the access token. The default is your user `.npmrc` file.
 
-        Run the script
+        And then run the script
 
         `$ npm run artifactregistry-login`
 
@@ -86,13 +90,9 @@ To use the module:
 
         ```
         "scripts": {
-            "artifactregistry-login": "./node_modules/.bin/artifactregistry-auth [path/to/.npmrc]",
+            "artifactregistry-login": "./node_modules/.bin/artifactregistry-auth --repo-config=[./.npmrc] --credential-config=[~/.npmrc]",
         }
         ```
-
-        Where **[path/to/.npmrc]** is the optional argument you can provide to
-        the script. If no path is provided, .npmrc file at current directory is
-        used.
 
         Run the script
 
