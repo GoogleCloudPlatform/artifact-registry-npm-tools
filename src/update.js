@@ -133,7 +133,7 @@ async function updateConfigFile(configPath, creds) {
     // so if possible add back to local/project .npmrc
     const prefixMatch = contents.match(prefixRegex)
     if (prefixMatch) {
-      contents = `${contents}\n${prefixMatch[0]}:_authToken="${creds}"`
+      contents = `${contents}\n${prefixMatch[0]}:_authToken=""`
     } else {
       throw new Error(
         'Artifact Registry config not found in ' + configPath +
