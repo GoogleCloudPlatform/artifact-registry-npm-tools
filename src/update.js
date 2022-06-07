@@ -120,6 +120,7 @@ async function updateConfigFile(configPath, creds) {
   const regex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_authToken=).*/g;
   const legacyRegex =
       /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:_password=).*(\n\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:username=oauth2accesstoken)/g;
+  const prefixRegex = /\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\//;
   let newContents;
   // If config is basic auth, encrypt the token.
   if (contents.match(legacyRegex)) {
@@ -128,9 +129,16 @@ async function updateConfigFile(configPath, creds) {
     contents = newContents;
   }
   else if (!contents.match(regex)) {
-    throw new Error(
+    // _authToken may have been moved to user .npmrc but may now need to be used in local/project .npmrc
+    // so if possible add back to local/project .npmrc
+    const prefixMatch = contents.match(prefixRegex)
+    if (prefixMatch) {
+      contents = `${contents}\n${prefixMatch[0]}:_authToken=""`
+    } else {
+      throw new Error(
         'Artifact Registry config not found in ' + configPath +
         '\nRun `gcloud beta artifacts print-settings npm`.');
+    }
   }
   newContents = contents.replace(regex, `$1"${creds}"`);
   const tempConfigPath = configPath.replace('.npmrc', '.npmrc-temp');
