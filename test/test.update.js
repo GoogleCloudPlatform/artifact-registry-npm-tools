@@ -225,6 +225,33 @@ describe('#update', () => {
       assert.equal(gotTo, `//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd`);
     });
 
+
+    it('add new scoped with dot', async function(){
+      fromConfigPath = getConfigPath(`${this.test.title}-from`);
+      toConfigPath = getConfigPath(`${this.test.title}-to`)
+      fs.writeFileSync(fromConfigPath, `@my.scope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
+      fs.writeFileSync(toConfigPath, ``);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      
+      const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
+      const gotTo = fs.readFileSync(toConfigPath, 'utf8');
+      assert.equal(gotFrom, `@my.scope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
+      assert.equal(gotTo, `//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd`);
+    });
+
+    it('add new scoped starting with tilda', async function(){
+      fromConfigPath = getConfigPath(`${this.test.title}-from`);
+      toConfigPath = getConfigPath(`${this.test.title}-to`)
+      fs.writeFileSync(fromConfigPath, `@~myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
+      fs.writeFileSync(toConfigPath, ``);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      
+      const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
+      const gotTo = fs.readFileSync(toConfigPath, 'utf8');
+      assert.equal(gotFrom, `@~myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
+      assert.equal(gotTo, `//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd`);
+    });
+
     it('add new to config file does not exist', async function(){
       fromConfigPath = getConfigPath(`${this.test.title}-from`);
       toConfigPath = getConfigPath(`${this.test.title}-to`)
