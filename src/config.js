@@ -13,7 +13,7 @@
 // limitations under the License.
 
 
-const registryRegex = /(@[a-zA-Z0-9-]+:)?registry=https:(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/)/;
+const registryRegex = /(@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*:)?registry=https:(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/)/;
 const authTokenRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_authToken=(.*)/;
 const passwordRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_password=(.*)/;
 
