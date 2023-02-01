@@ -20,6 +20,23 @@ const { hideBin } = require('yargs/helpers')
 const auth = require('./auth');
 const { logger } = require('./logger');
 const update = require('./update');
+const fs = require('fs');
+
+/**
+ * Determine which npmrc file should be the default repo configuration
+ * 
+ * This will determine if a project-level npmrc file exists, otherwise default to the user-level npmrc file
+ * 
+ * return {!Promise<String>}
+ */
+ async function determineDefaultRepoConfig() {
+  try {
+    await fs.promises.stat('.npmrc')
+    return '.npmrc'
+  } catch (e) {
+    return `${os.homedir()}/.npmrc`
+  }
+}
 
 /**
  * Get credentials and update .npmrc file.
@@ -45,8 +62,8 @@ async function main() {
       })
       .option('repo-config', {
         type: 'string',
-        describe: 'Path to the .npmrc file to read registry configs from, usually the project-level npmrc file',
-        default: '.npmrc',
+        describe: 'Path to the .npmrc file to read registry configs from, will use the project-level npmrc file if it exists, otherwise the user-level npmrc file',
+        default: await determineDefaultRepoConfig(),
       })
       .option('credential-config', {
         type: 'string',
