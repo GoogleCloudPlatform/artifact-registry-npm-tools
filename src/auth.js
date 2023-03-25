@@ -54,16 +54,7 @@ async function getApplicationDefaultCredentials() {
     projectId: 'unused-project'
   });
   const client = await auth.getClient();
-  const creds = (await client.getAccessToken()).token;
-  const tokenScopes = (await client.getTokenInfo(creds)).scopes;
-  if (!tokenScopes.includes(
-          'https://www.googleapis.com/auth/cloud-platform')) {
-    throw new Error(
-        'Token has insufficient authentication scopes.\n' +
-        'Please configure access scope following instructions on ' +
-        'https://cloud.google.com/artifact-registry/docs/access-control#compute');
-  }
-  return creds; 
+  return (await client.getAccessToken()).token;
 }
 
 /**
