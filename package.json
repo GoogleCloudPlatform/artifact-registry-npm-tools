@@ -14,7 +14,7 @@
     "artifactregistry-auth": "./src/main.js"
   },
   "devDependencies": {
-    "mocha": "^6.2.0",
+    "mocha": "^10.2.0",
     "rewire": "^5.0.0"
   },
   "scripts": {
