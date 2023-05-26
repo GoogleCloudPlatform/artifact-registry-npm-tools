@@ -29,11 +29,6 @@ const {logger} = require('./logger');
 async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
   fromConfigPath = path.resolve(fromConfigPath);
   toConfigPath = path.resolve(toConfigPath);
-  // Backward-compatible scenario. Update auth configs in project npmrc directly.
-  if (fromConfigPath == toConfigPath) {
-    updateConfigFile(fromConfigPath, creds);
-    return;
-  }
 
   const fromConfigs = [];
   const toConfigs = [];
@@ -102,7 +97,11 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
   // Write to the user npmrc file first so that if it failed the project npmrc file
   // would still be untouched.
   await fs.promises.writeFile(toConfigPath, toConfigs.join(`\n`));
-  await fs.promises.writeFile(fromConfigPath, fromConfigs.join(`\n`));
+  if(fromConfigPath !== toConfigPath) {
+    // If the files are the same (and likely the user .npmrc file) only write once with the auth configs
+    // Otherwise, we'd overwrite this file without adding the credentials
+    await fs.promises.writeFile(fromConfigPath, fromConfigs.join(`\n`));
+  }
 }
 
 /**
