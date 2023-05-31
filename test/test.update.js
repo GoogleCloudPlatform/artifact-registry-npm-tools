@@ -277,6 +277,20 @@ describe('#update', () => {
       assert.equal(gotTo, `//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd`);
     });
 
+    it('set multiple tokens in same file', async function(){
+      fromConfigPath = getConfigPath(`${this.test.title}-from`);
+      toConfigPath = fromConfigPath;
+      fs.writeFileSync(fromConfigPath, `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+      @cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/`);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      
+      const got = fs.readFileSync(fromConfigPath, 'utf8');
+      assert.equal(got, `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+@cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd
+//asia-npm.pkg.dev/my-project/my-other-repo/:_authToken=abcd`);
+    });
+
     it('use password config if exists', async function(){
       fromConfigPath = getConfigPath(`${this.test.title}-from`);
       toConfigPath = getConfigPath(`${this.test.title}-to`)
