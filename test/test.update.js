@@ -32,7 +32,7 @@ function getConfigPath(test) {
 }
 
 describe('#update', () => {
-  describe('#updateConfigFile(configPath, creds)', () => {
+  describe('legacy in place update backward compatibility', () => {
     const newConfig = `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
 //us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=""
 //us-west1-npm.pkg.dev/my-project/my-repo/:always-auth=true`;
@@ -122,13 +122,13 @@ describe('#update', () => {
     });
 
     afterEach(function(){
-      fs.rmdirSync(getTestDir(this.currentTest.title), {recursive: true});
+      fs.rmSync(getTestDir(this.currentTest.title), {recursive: true});
     });
 
     it('add new', async function(){
       configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, newConfig);
-      await update.updateConfigFile(configPath, creds);
+      await update.updateConfigFiles(configPath, configPath, creds, false);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantContent);
@@ -137,7 +137,7 @@ describe('#update', () => {
     it('replace old creds', async function(){
       configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, existingConfig);
-      await update.updateConfigFile(configPath, creds);
+      await update.updateConfigFiles(configPath, configPath, creds, false);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantContent);
@@ -146,7 +146,7 @@ describe('#update', () => {
     it('replace multiple creds', async function(){
       configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, multipleConfig);
-      await update.updateConfigFile(configPath, creds);
+      await update.updateConfigFiles(configPath, configPath, creds, false);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantMultipleContent);
@@ -155,7 +155,7 @@ describe('#update', () => {
     it('replace creds with legacy', async function(){
       configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, existingWithLegacyConfig);
-      await update.updateConfigFile(configPath, creds);
+      await update.updateConfigFiles(configPath, configPath, creds, false);
 
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantExistingWithLegacyContent);
@@ -164,8 +164,7 @@ describe('#update', () => {
     it('replace legacy creds', async function(){
       configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, legacyConfig);
-      await update.updateConfigFile(configPath, creds);
-
+      await update.updateConfigFiles(configPath, configPath, creds, false);
       const got = fs.readFileSync(configPath, 'utf8');
       assert.equal(got, wantLegacyContent);
     });
@@ -173,12 +172,12 @@ describe('#update', () => {
     it('no creds', async function() {
       configPath = getConfigPath(this.test.title);
       fs.writeFileSync(configPath, nonCBAConfig);
-      await assert.rejects(update.updateConfigFile(configPath, creds));
+      await assert.rejects(update.updateConfigFiles(configPath, configPath, creds, false));
     });
 
     it ('non-existing', async function() {
       configPath = getConfigPath(this.test.title);
-      await assert.rejects(update.updateConfigFile(configPath, creds));
+      await assert.rejects(update.updateConfigFiles(configPath, configPath, creds, false));
     });
   });
 
@@ -204,7 +203,7 @@ describe('#update', () => {
       toConfigPath = getConfigPath(`${this.test.title}-to`)
       fs.writeFileSync(fromConfigPath, `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
       fs.writeFileSync(toConfigPath, ``);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -217,7 +216,7 @@ describe('#update', () => {
       toConfigPath = getConfigPath(`${this.test.title}-to`)
       fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
       fs.writeFileSync(toConfigPath, ``);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -231,7 +230,7 @@ describe('#update', () => {
       toConfigPath = getConfigPath(`${this.test.title}-to`)
       fs.writeFileSync(fromConfigPath, `@my.scope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
       fs.writeFileSync(toConfigPath, ``);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -244,7 +243,7 @@ describe('#update', () => {
       toConfigPath = getConfigPath(`${this.test.title}-to`)
       fs.writeFileSync(fromConfigPath, `@~myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
       fs.writeFileSync(toConfigPath, ``);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -256,7 +255,7 @@ describe('#update', () => {
       fromConfigPath = getConfigPath(`${this.test.title}-from`);
       toConfigPath = getConfigPath(`${this.test.title}-to`)
       fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -269,7 +268,7 @@ describe('#update', () => {
       toConfigPath = getConfigPath(`${this.test.title}-to`)
       fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
       fs.writeFileSync(toConfigPath, `//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=oldToken`);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -277,26 +276,12 @@ describe('#update', () => {
       assert.equal(gotTo, `//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd`);
     });
 
-    it('set multiple tokens in same file', async function(){
-      fromConfigPath = getConfigPath(`${this.test.title}-from`);
-      toConfigPath = fromConfigPath;
-      fs.writeFileSync(fromConfigPath, `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
-      @cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/`);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
-      
-      const got = fs.readFileSync(fromConfigPath, 'utf8');
-      assert.equal(got, `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
-@cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/
-//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd
-//asia-npm.pkg.dev/my-project/my-other-repo/:_authToken=abcd`);
-    });
-
     it('use password config if exists', async function(){
       fromConfigPath = getConfigPath(`${this.test.title}-from`);
       toConfigPath = getConfigPath(`${this.test.title}-to`)
       fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
       fs.writeFileSync(toConfigPath, `//us-west1-npm.pkg.dev/my-project/my-repo/:_password=mypassword`);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -310,7 +295,7 @@ describe('#update', () => {
       fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
 //us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=oldToken`);
       fs.writeFileSync(toConfigPath, `//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=oldToken`);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -323,7 +308,7 @@ describe('#update', () => {
       toConfigPath = getConfigPath(`${this.test.title}-to`)
       fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
 //us-west1-npm.pkg.dev/my-project/my-repo/:_password=mypassword`);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -337,7 +322,7 @@ describe('#update', () => {
       fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
 //us-west1-npm.pkg.dev/my-project/my-repo/:_password="YWJjZA=="
 //us-west1-npm.pkg.dev/my-project/my-repo/:username=oauth2accesstoken`);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -352,7 +337,7 @@ describe('#update', () => {
 @anotherscope:registry=https://us-west1-npm.pkg.dev/another-proj/another-repo/
 myregistry.myproperty=myvalue`);
       fs.writeFileSync(toConfigPath, `myregistry.myproperty=myvalue`);
-      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
       
       const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
       const gotTo = fs.readFileSync(toConfigPath, 'utf8');
@@ -363,6 +348,43 @@ myregistry.myproperty=myvalue`);
 //us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd
 //us-west1-npm.pkg.dev/another-proj/another-repo/:_authToken=abcd`);
     });
+
+    it('inline update - set multiple tokens in same file', async function(){
+      fromConfigPath = getConfigPath(`${this.test.title}-from`);
+      toConfigPath = fromConfigPath;
+      fs.writeFileSync(fromConfigPath, `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+@cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/`);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, true);
+      
+      const got = fs.readFileSync(fromConfigPath, 'utf8');
+      assert.equal(got, `registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+@cba:registry=https://asia-npm.pkg.dev/my-project/my-other-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd
+//asia-npm.pkg.dev/my-project/my-other-repo/:_authToken=abcd`);
+    });
+
+    it('inline update - set multiple tokens in same file', async function(){
+      fromConfigPath = getConfigPath(`${this.test.title}-from`);
+      toConfigPath = fromConfigPath;
+      fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=oldToken`);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, true);
+      const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
+      assert.equal(gotFrom, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd`);
+    });
+
+    it('inline update - keeps password config unchanged', async function(){
+      fromConfigPath = getConfigPath(`${this.test.title}-from`);
+      toConfigPath = fromConfigPath;
+      fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_password=old.credential`);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, true);
+      const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
+      assert.equal(gotFrom, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/
+//us-west1-npm.pkg.dev/my-project/my-repo/:_password=old.credential`);
+    });
+
 
     it('rejects if input does not exist', async function() {
       fromConfigPath = getConfigPath(`${this.test.title}-from`);

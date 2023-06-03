@@ -75,6 +75,11 @@ async function main() {
         describe: 'Set log level to verbose',
         default: false,
       })
+      .option('inline-update-insert-token', {
+        type: 'boolean',
+        describe: 'If set, create an OAuth token for each registry config if no other types of auth config are present, even when updating in place',
+        default: false,
+      })
       .help()
       .argv;
 
@@ -84,9 +89,9 @@ async function main() {
     if (configPath) {
       console.warn('Updating project .npmrc inline is deprecated and may no longer be supported\n'
           + 'in future versions. Run the plugin with `--repo-config` and `--credential-config`.');
-      await update.updateConfigFile(configPath, creds);
+      await update.updateConfigFiles(configPath, configPath, creds, false);
     } else {
-      await update.updateConfigFiles(allArgs.repoConfig, allArgs.credentialConfig, creds);
+      await update.updateConfigFiles(allArgs.repoConfig, allArgs.credentialConfig, creds, allArgs.inlineUpdateInsertToken);
     }
     console.log("Success!");
   } catch (err) {

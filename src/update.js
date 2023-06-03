@@ -26,10 +26,14 @@ const {logger} = require('./logger');
  * @param {string} creds Encrypted credentials.
  * @return {!Promise<undefined>}
  */
-async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
+async function updateConfigFiles(fromConfigPath, toConfigPath, creds, inlineUpdateInsertToken) {
   fromConfigPath = path.resolve(fromConfigPath);
   toConfigPath = path.resolve(toConfigPath);
-
+  // Backward-compatible scenario. Update auth configs in project npmrc directly.
+  if (fromConfigPath == toConfigPath && !inlineUpdateInsertToken) {
+    await updateConfigFile(fromConfigPath, creds);
+    return;
+  }
   const fromConfigs = [];
   const toConfigs = [];
   const registryAuthConfigs = new Map();
@@ -145,6 +149,5 @@ async function updateConfigFile(configPath, creds) {
 }
 
 module.exports = {
-  updateConfigFiles,
-  updateConfigFile
+  updateConfigFiles
 };
