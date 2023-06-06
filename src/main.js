@@ -54,12 +54,7 @@ const fs = require('fs');
 async function main() {
   try {
     const allArgs = yargs(hideBin(process.argv))
-      .command('$0 [config]', 'Refresh the tokens for .npmrc config file', (yargs) => {
-        yargs.positional('config', {
-          type: 'string',
-          describe: '(Deprecated) Path to the .npmrc file to update auth tokens',
-        })
-      })
+      .command('$0', 'Refresh the tokens for .npmrc config file')
       .option('repo-config', {
         type: 'string',
         describe: 'Path to the .npmrc file to read registry configs from, will use the project-level npmrc file if it exists, otherwise the user-level npmrc file',
@@ -75,19 +70,14 @@ async function main() {
         describe: 'Set log level to verbose',
         default: false,
       })
+      .strict()
+      .strictCommands()
       .help()
       .argv;
 
     logger.logVerbose = allArgs.verbose;
-    const configPath = allArgs.config;
     const creds = await auth.getCreds();
-    if (configPath) {
-      console.warn('Updating project .npmrc inline is deprecated and may no longer be supported\n'
-          + 'in future versions. Run the plugin with `--repo-config` and `--credential-config`.');
-      await update.updateConfigFile(configPath, creds);
-    } else {
-      await update.updateConfigFiles(allArgs.repoConfig, allArgs.credentialConfig, creds);
-    }
+    await update.updateConfigFiles(allArgs.repoConfig, allArgs.credentialConfig, creds);
     console.log("Success!");
   } catch (err) {
     console.error(err);
