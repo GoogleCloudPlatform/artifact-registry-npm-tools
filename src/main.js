@@ -75,12 +75,20 @@ async function main() {
         describe: 'Set log level to verbose',
         default: false,
       })
+      .option('token', {
+        type: 'string',
+        describe: 'If set, update the .npmrc file with this token rather than the token obtained from ADC or gcloud.',
+        default: '',
+      })
       .help()
       .argv;
 
     logger.logVerbose = allArgs.verbose;
     const configPath = allArgs.config;
-    const creds = await auth.getCreds();
+    var creds = allArgs.token;
+    if (creds == '') {
+       creds = await auth.getCreds();
+    }
     if (configPath) {
       console.warn('Updating project .npmrc inline is deprecated and may no longer be supported\n'
           + 'in future versions. Run the plugin with `--repo-config` and `--credential-config`.');
