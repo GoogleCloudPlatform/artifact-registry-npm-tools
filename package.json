@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "mocha": "^6.2.0",
-    "rewire": "^5.0.0"
+    "rewire": "^9.0.0"
   },
   "scripts": {
     "test": "mocha"
