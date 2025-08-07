@@ -80,6 +80,11 @@ async function main() {
         describe: 'If set, update the .npmrc file with this token rather than the token obtained from ADC or gcloud.',
         default: '',
       })
+      .option('allow-all-domains', {
+        type: 'boolean',
+        describe: 'If set, it allows all registry domains to attach the auth token to.',
+        default: false,
+      })
       .help()
       .argv;
 
@@ -94,7 +99,7 @@ async function main() {
           + 'in future versions. Run the plugin with `--repo-config` and `--credential-config`.');
       await update.updateConfigFile(configPath, creds);
     } else {
-      await update.updateConfigFiles(allArgs.repoConfig, allArgs.credentialConfig, creds);
+      await update.updateConfigFiles(allArgs.repoConfig, allArgs.credentialConfig, creds, allArgs.allowAllDomains);
     }
     console.log("Success!");
   } catch (err) {

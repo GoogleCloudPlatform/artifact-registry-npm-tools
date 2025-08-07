@@ -24,9 +24,10 @@ const {logger} = require('./logger');
  * @param {string} fromConfigPath Path to the npmrc file to read scope registry configs from, should be the project npmrc file.
  * @param {string} toConfigPath Path to npmrc file to write authentication configs to, should be the user npmrc file.
  * @param {string} creds Encrypted credentials.
+ * @param {boolean} allowAllDomains Set if allow all domains.
  * @return {!Promise<undefined>}
  */
-async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
+async function updateConfigFiles(fromConfigPath, toConfigPath, creds, allowAllDomains) {
   fromConfigPath = path.resolve(fromConfigPath);
   toConfigPath = path.resolve(toConfigPath);
 
@@ -45,7 +46,7 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
   // - password config, print a warning and move it to the user npmrc file.
   // - everything else, keep it in the project npmrc file.
   for (const line of fromConfigLines.split('\n')) {
-    let config = c.parseConfig(line.trim());
+    let config = c.parseConfig(line.trim(), allowAllDomains);
     switch (config.type) {
       case c.configType.Registry:
         fromConfigs.push(config);
@@ -78,7 +79,7 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds) {
       if (line == "") {
         continue;
       }
-      let config = c.parseConfig(line.trim());
+      let config = c.parseConfig(line.trim(), allowAllDomains);
       if (config.type == c.configType.AuthToken || config.type == c.configType.Password) {
         registryAuthConfigs.delete(config.registry);
       }
