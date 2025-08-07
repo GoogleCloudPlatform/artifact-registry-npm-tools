@@ -13,9 +13,9 @@
 // limitations under the License.
 
 
-const registryRegex = /(@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*:)?registry=https:(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/)/;
-const authTokenRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_authToken=(.*)/;
-const passwordRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_password=(.*)/;
+const registryRegex = /(@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*:)?registry=https:(\/\/[a-zA-Z0-9-]*npm[.].+\/.*\/)/;
+const authTokenRegex = /(\/\/[a-zA-Z0-9-]*npm[.].+\/.*\/):_authToken=(.*)/;
+const passwordRegex = /(\/\/[a-zA-Z0-9-]*npm[.].+\/.*\/):_password=(.*)/;
 
 const configType = {
   Default: "Default",
