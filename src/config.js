@@ -13,9 +13,14 @@
 // limitations under the License.
 
 
-const registryRegex = /(@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*:)?registry=https:(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/)/;
-const authTokenRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_authToken=(.*)/;
-const passwordRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_password=(.*)/;
+const registryARRegex = /(@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*:)?registry=https:(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/)/;
+const authTokenARRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_authToken=(.*)/;
+const passwordARRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_password=(.*)/;
+
+const registryAllDomainRegex = /(@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*:)?registry=https:(\/\/.*)/;
+const authTokenAllDomainRegex = /(\/\/.*\/):_authToken=(.*)/;
+const passwordAllDomainRegex = /(\/\/.*\/):_password=(.*)/;
+
 
 const configType = {
   Default: "Default",
@@ -24,7 +29,16 @@ const configType = {
   Password: "Password",
 }
 
-function parseConfig(text) {
+function parseConfig(text, allowAllDomains) {
+  registryRegex = registryARRegex;
+  authTokenRegex = authTokenARRegex;
+  passwordRegex = passwordARRegex;
+  if (allowAllDomains) {
+    registryRegex = registryAllDomainRegex;
+    authTokenRegex = authTokenAllDomainRegex;
+    passwordRegex = passwordAllDomainRegex;
+  }
+
   let m = text.match(registryRegex);
   if (m) {
     return {
