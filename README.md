@@ -77,6 +77,8 @@ To use the module:
         the default location is the current directory.
         - `--credential-config` is the path to the `.npmrc` file where you want to write the access token. The default is your user `.npmrc` file.
 
+        If you want to skip checking for npm Artifact Registry domain and allow the auth token to be attached to any domains, add the flag `--allow-all-domains`
+
         And then run the script
 
         `$ npm run artifactregistry-login`
