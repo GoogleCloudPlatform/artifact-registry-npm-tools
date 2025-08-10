@@ -14,6 +14,7 @@ https://cloud.google.com/artifact-registry/docs/nodejs/authentication
 
 The module automatically searches for credentials from the environment and authenticates to Artifact Registry. It looks for
 credentials in the following order:
+
 1. [Google Application Default Credentials](https://developers.google.com/accounts/docs/application-default-credentials).
 2. The current active account logged in via `gcloud auth login`.
 3. If neither of them exist, an error occurs.
@@ -25,20 +26,20 @@ in npmrc file.
 To use the module:
 
 1.  Log in
-    
+
     Option 1: log in as a service account:
 
     (1). Using a JSON file that contains a service account key:
 
            `$ export GOOGLE_APPLICATION_CREDENTIALS=[path/to/key.json]`
-    
+
     (2). Or using gcloud:
 
-           `$ gcloud auth application-default login` 
-    
+           `$ gcloud auth application-default login`
+
     Option 2: log in as an end user via gcloud:
-    
-       `$ gcloud auth login`
+
+    `$ gcloud auth login`
 
 2.  Add settings to connect to the repository to .npmrc. Use the output from the
     following command:
@@ -71,10 +72,11 @@ To use the module:
             "artifactregistry-login": "npx google-artifactregistry-auth --repo-config=[./.npmrc] --credential-config=[~/.npmrc]",
         }
         ```
-        
+
         Where:
-        - `--repo-config` is the `.npmrc` file with your repository settings. If you don't specify this flag, 
-        the default location is the current directory.
+
+        - `--repo-config` is the `.npmrc` file with your repository settings. If you don't specify this flag,
+          the default location is the current directory.
         - `--credential-config` is the path to the `.npmrc` file where you want to write the access token. The default is your user `.npmrc` file.
 
         If you want to skip checking for npm Artifact Registry domain and allow the auth token to be attached to any domains, add the flag `--allow-all-domains`
@@ -100,3 +102,14 @@ To use the module:
 
         `$ npm run artifactregistry-login`
 
+## Access from Isolated Environments
+
+If you are running the script from an isolated environment, meaning there is no egress to public npm registry, the `npx` command will fail because it cannot download the package from npmjs.com or from private Artifact Registry yet. In this case, pre-install the package in the isolated environment and run the javascript directly to avoid the `npx` command reaching out to the internet.
+
+1. Pre-Install the package in the isolated environment (e.g. Cloud Build)
+
+   `$ npm install -g google-artifactregistry-auth`
+
+2. Run the script directly.
+
+   `$ node $(npm root -g)/google-artifactregistry-auth/src/main.js --repo-config=[./.npmrc] --credential-config=[~/.npmrc]`
