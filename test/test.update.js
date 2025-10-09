@@ -402,10 +402,14 @@ myregistry.myproperty=myvalue`);
     });
 
 
-    it('rejects if input does not exist', async function() {
+    it('should update .npmrc if fromConfigPath does not exist', async function() {
       fromConfigPath = getConfigPath(`${this.test.title}-from`);
       toConfigPath = getConfigPath(`${this.test.title}-to`)
-      await assert.rejects(update.updateConfigFiles(fromConfigPath, toConfigPath, creds));
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds);
+      const gotTo = fs.readFileSync(toConfigPath, 'utf8');
+      await assert.equal(gotTo, `@workspace:registry=https://<location>-npm.pkg.dev/<project>/<repo>
+https://<location>-npm.pkg.dev/<project>/<repo>:always-auth=true
+//asia-northeast1-npm.pkg.dev/pixiv-gitlab/npm-shared/:_authToken=abcd`);
     });
   });
 })

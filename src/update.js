@@ -36,39 +36,47 @@ async function updateConfigFiles(fromConfigPath, toConfigPath, creds, allowAllDo
   const registryAuthConfigs = new Map();
 
   // We do not use basic auth any more in `gcloud artifacts print-settings`; replace them.
-  let fromConfigLines = await fs.promises.readFile(fromConfigPath, "utf8")
-  const legacyRegex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/):_password=.*(\n\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:username=oauth2accesstoken)/g;
-  fromConfigLines = fromConfigLines.replace(legacyRegex, `$1:_authToken=${creds}`)
+  const fromConfigExists = fs.existsSync(fromConfigPath)
+  if (fromConfigExists) {
+    let fromConfigLines = await fs.promises.readFile(fromConfigPath, "utf8")
+    const legacyRegex = /(\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/):_password=.*(\n\/\/[a-zA-Z1-9-]+[-]npm[.]pkg[.]dev\/.*\/:username=oauth2accesstoken)/g;
+    fromConfigLines = fromConfigLines.replace(legacyRegex, `$1:_authToken=${creds}`)
 
-  // Read configs from project npmrc file. For each:
-  // - registry config, create an auth token config in the user npmrc file (expect an auth token or password config already exists)
-  // - auth token config, print a warning and remove it.
-  // - password config, print a warning and move it to the user npmrc file.
-  // - everything else, keep it in the project npmrc file.
-  for (const line of fromConfigLines.split('\n')) {
-    let config = c.parseConfig(line.trim(), allowAllDomains);
-    switch (config.type) {
-      case c.configType.Registry:
-        fromConfigs.push(config);
-        registryAuthConfigs.set(config.registry, {
-          type: c.configType.AuthToken,
-          registry: config.registry,
-          token: creds,
-          toString: function() {
-            return `${this.registry}:_authToken=${this.token}`;
-          }
-        });
-        break;
-      case c.configType.AuthToken:
-        logger.debug(`Found an auth token for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
-        break;
-      case c.configType.Password:
-        logger.debug(`Found password for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
-        registryAuthConfigs.set(config.registry, config);
-        break;
-      default:
-        fromConfigs.push(config);
+    // Read configs from project npmrc file. For each:
+    // - registry config, create an auth token config in the user npmrc file (expect an auth token or password config already exists)
+    // - auth token config, print a warning and remove it.
+    // - password config, print a warning and move it to the user npmrc file.
+    // - everything else, keep it in the project npmrc file.
+    for (const line of fromConfigLines.split('\n')) {
+      let config = c.parseConfig(line.trim(), allowAllDomains);
+      switch (config.type) {
+        case c.configType.Registry:
+          fromConfigs.push(config);
+          registryAuthConfigs.set(config.registry, {
+            type: c.configType.AuthToken,
+            registry: config.registry,
+            token: creds,
+            toString: function() {
+              return `${this.registry}:_authToken=${this.token}`;
+            }
+          });
+          break;
+        case c.configType.AuthToken:
+          logger.debug(`Found an auth token for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
+          break;
+        case c.configType.Password:
+          logger.debug(`Found password for the registry ${config.registry} in the project npmrc file. Moving it to the user npmrc file...`);
+          registryAuthConfigs.set(config.registry, config);
+          break;
+        default:
+          fromConfigs.push(config);
+      }
     }
+  } else {
+    logger.debug(`Not found file ${fromConfigPath}, creating ${toConfigPath}, replace the default values`);
+    toConfigs.push(`@workspace:registry=https://<location>-npm.pkg.dev/<project>/<repo>
+https://<location>-npm.pkg.dev/<project>/<repo>:always-auth=true
+//asia-northeast1-npm.pkg.dev/pixiv-gitlab/npm-shared/:_authToken=${creds}`);
   }
 
   if (fs.existsSync(toConfigPath)) {
