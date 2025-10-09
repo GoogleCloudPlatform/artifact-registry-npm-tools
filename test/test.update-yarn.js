@@ -55,4 +55,17 @@ describe('updateYarnConfigFiles', () => {
       },
     });
   });
+
+
+  it('should updates yarnrc.yml if fromConfigPath does not exist', async function() {
+    fromConfigPathNotExist = path.join(fromConfigPath,`${this.test.title}-from`);
+    await updateYarnConfigFiles(fromConfigPathNotExist, toConfigPath, 'my-secret-token');
+    const gotTo = fs.readFileSync(toConfigPath, 'utf8');
+    await assert.equal(gotTo, `npmScopes:
+  workspace:
+    npmRegistryServer: https://<location>-npm.pkg.dev/<project>/<repo>
+    npmAlwaysAuth: true
+    npmAuthToken: my-secret-token
+`);
+  });
 });
