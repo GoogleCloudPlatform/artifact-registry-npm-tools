@@ -13,11 +13,11 @@
 // limitations under the License.
 
 
-const registryARRegex = /(@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*:)?registry=https:(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/)/;
+const registryARRegex = /((@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*|[a-zA-Z0-9-*._~-]+):)?registry=https:(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/)/;
 const authTokenARRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_authToken=(.*)/;
 const passwordARRegex = /(\/\/[a-zA-Z0-9-]+[-]npm[.]pkg[.]dev\/.*\/):_password=(.*)/;
 
-const registryAllDomainRegex = /(@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*:)?registry=https:(\/\/.*)/;
+const registryAllDomainRegex = /((@[a-zA-Z0-9-*~][a-zA-Z0-9-*._~]*|[a-zA-Z0-9-*._~-]+):)?registry=https:(\/\/.*)/;
 const authTokenAllDomainRegex = /(\/\/.*\/):_authToken=(.*)/;
 const passwordAllDomainRegex = /(\/\/.*\/):_password=(.*)/;
 
@@ -44,7 +44,7 @@ function parseConfig(text, allowAllDomains) {
     return {
       type: configType.Registry,
       scope: m[1] ? m[1].replace(':', '') : m[1],
-      registry: m[2],
+      registry: m[3],
       toString: function() {
         return `${this.scope ? this.scope + ':' : ''}registry=https:${this.registry}`;
       }
