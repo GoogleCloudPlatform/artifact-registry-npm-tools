@@ -55,4 +55,100 @@ describe('updateYarnConfigFiles', () => {
       },
     });
   });
+
+  it('should not update token for non-AR registry by default', async () => {
+    const fromContent = {
+      npmScopes: {
+        ar: {
+          npmRegistryServer: 'https://region-npm.pkg.dev/project/repo',
+        },
+        other: {
+          npmRegistryServer: 'https://registry.npmjs.org',
+        },
+      },
+    };
+    fs.writeFileSync(fromConfigPath, yaml.dump(fromContent));
+
+    await updateYarnConfigFiles(fromConfigPath, toConfigPath, 'my-secret-token', false);
+
+    const toContent = yaml.load(fs.readFileSync(toConfigPath, 'utf8'));
+    assert.deepStrictEqual(toContent, {
+      npmScopes: {
+        ar: {
+          npmRegistryServer: 'https://region-npm.pkg.dev/project/repo',
+          npmAlwaysAuth: true,
+          npmAuthToken: 'my-secret-token',
+        },
+      },
+    });
+  });
+
+  it('should update token for all registries when allowAllDomains is true', async () => {
+    const fromContent = {
+      npmScopes: {
+        ar: {
+          npmRegistryServer: 'https://region-npm.pkg.dev/project/repo',
+        },
+        other: {
+          npmRegistryServer: 'https://registry.npmjs.org',
+        },
+      },
+    };
+    fs.writeFileSync(fromConfigPath, yaml.dump(fromContent));
+
+    await updateYarnConfigFiles(fromConfigPath, toConfigPath, 'my-secret-token', true);
+
+    const toContent = yaml.load(fs.readFileSync(toConfigPath, 'utf8'));
+    assert.deepStrictEqual(toContent, {
+      npmScopes: {
+        ar: {
+          npmRegistryServer: 'https://region-npm.pkg.dev/project/repo',
+          npmAlwaysAuth: true,
+          npmAuthToken: 'my-secret-token',
+        },
+        other: {
+          npmRegistryServer: 'https://registry.npmjs.org',
+          npmAlwaysAuth: true,
+          npmAuthToken: 'my-secret-token',
+        },
+      },
+    });
+  });
+
+  it('should preserve existing non-AR scopes in toConfig', async () => {
+    const fromContent = {
+      npmScopes: {
+        ar: {
+          npmRegistryServer: 'https://region-npm.pkg.dev/project/repo',
+        },
+      },
+    };
+    const toExistingContent = {
+      npmScopes: {
+        other: {
+          npmRegistryServer: 'https://registry.npmjs.org',
+          npmAuthToken: 'other-token',
+        },
+      },
+    };
+    fs.writeFileSync(fromConfigPath, yaml.dump(fromContent));
+    fs.writeFileSync(toConfigPath, yaml.dump(toExistingContent));
+
+    await updateYarnConfigFiles(fromConfigPath, toConfigPath, 'my-secret-token', false);
+
+    const toContent = yaml.load(fs.readFileSync(toConfigPath, 'utf8'));
+    assert.deepStrictEqual(toContent, {
+      npmScopes: {
+        other: {
+          npmRegistryServer: 'https://registry.npmjs.org',
+          npmAuthToken: 'other-token',
+        },
+        ar: {
+          npmRegistryServer: 'https://region-npm.pkg.dev/project/repo',
+          npmAlwaysAuth: true,
+          npmAuthToken: 'my-secret-token',
+        },
+      },
+    });
+  });
 });

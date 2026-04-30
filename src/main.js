@@ -127,7 +127,7 @@ async function main() {
       await update.updateConfigFile(configPath, creds);
     } else {
       await update.updateConfigFiles(allArgs.repoConfig, allArgs.credentialConfig, creds, allArgs.allowAllDomains);
-      await updateYarn.updateYarnConfigFiles(allArgs.repoConfigYarn, allArgs.credentialConfigYarn, creds);
+      await updateYarn.updateYarnConfigFiles(allArgs.repoConfigYarn, allArgs.credentialConfigYarn, creds, allArgs.allowAllDomains);
     }
     console.log("Success!");
   } catch (err) {

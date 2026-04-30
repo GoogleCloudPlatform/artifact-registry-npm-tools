@@ -17,15 +17,18 @@ const path = require('path');
 const yaml = require('js-yaml');
 const {logger} = require('./logger');
 
+const arRegistryRegex = /^https:\/\/[a-zA-Z0-9-]+-npm\.pkg\.dev\//;
+
 /**
  * Update the project and user yarnrc.yml files.
  *
  * @param {string} fromConfigPath Path to the yarnrc.yml file to read scope registry configs from, should be the project yarnrc.yml file.
  * @param {string} toConfigPath Path to yarnrc.yml file to write authentication configs to, should be the user yarnrc.yml file.
  * @param {string} creds Encrypted credentials.
+ * @param {boolean} allowAllDomains Set if allow all domains.
  * @return {!Promise<undefined>}
  */
-async function updateYarnConfigFiles(fromConfigPath, toConfigPath, creds) {
+async function updateYarnConfigFiles(fromConfigPath, toConfigPath, creds, allowAllDomains) {
   fromConfigPath = path.resolve(fromConfigPath);
   toConfigPath = path.resolve(toConfigPath);
 
@@ -40,6 +43,10 @@ async function updateYarnConfigFiles(fromConfigPath, toConfigPath, creds) {
       if (fromScope.npmRegistryServer) {
         const registry = fromScope.npmRegistryServer;
         logger.debug(`Found registry ${registry} in ${fromConfigPath}`);
+        if (!allowAllDomains && !arRegistryRegex.test(registry)) {
+          logger.debug(`Skipping non-Artifact Registry domain ${registry}`);
+          continue;
+        }
         if (!toDoc.npmScopes) {
           toDoc.npmScopes = {};
         }
