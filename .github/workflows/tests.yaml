@@ -6,29 +6,33 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
   ubuntu:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 20.x, 22.x]
+        node-version: [16.x, 18.x, 20.x, 22.x, 26.x]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
     - run: npm test
+    - run: node ./src/main.js --help
   windows:
     runs-on: windows-latest
     strategy:
       matrix:
         node-version: [16.x, 18.x, 20.x, 22.x]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
@@ -40,9 +44,9 @@ jobs:
         node-version: [16.x, 18.x, 20.x, 22.x]
         architecture: [arm64, x64]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@f1f314fca9dfce2769ece7d933488f076716723e # v1
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install

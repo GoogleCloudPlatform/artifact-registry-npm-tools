@@ -122,7 +122,7 @@ describe('#update', () => {
     });
 
     afterEach(function(){
-      fs.rmdirSync(getTestDir(this.currentTest.title), {recursive: true});
+      fs.rmSync(getTestDir(this.currentTest.title), {recursive: true});
     });
 
     it('add new', async function(){
@@ -195,8 +195,8 @@ describe('#update', () => {
     });
 
     afterEach(function(){
-      fs.rmdirSync(getTestDir(`${this.currentTest.title}-from`), {recursive: true});
-      fs.rmdirSync(getTestDir(`${this.currentTest.title}-to`), {recursive: true});
+      fs.rmSync(getTestDir(`${this.currentTest.title}-from`), {recursive: true});
+      fs.rmSync(getTestDir(`${this.currentTest.title}-to`), {recursive: true});
     });
 
     it('add new unscoped', async function(){
