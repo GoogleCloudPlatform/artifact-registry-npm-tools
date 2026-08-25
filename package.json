@@ -6,8 +6,11 @@
   "repository": "GoogleCloudPlatform/artifact-registry-npm-tools",
   "author": "Google LLC",
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
-    "google-auth-library": "^9.14.0",
+    "google-auth-library": "^10.7.0",
     "js-yaml": "^4.1.0",
     "yargs": "^17.1.1"
   },
