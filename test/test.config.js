@@ -30,4 +30,17 @@ describe('#config', function() {
       assert.equal(c.parseConfig(config).toString(), config);
     });
   });
+
+  // https://github.com/GoogleCloudPlatform/artifact-registry-npm-tools/issues/85
+  it('preserves the repository name when the registry URL has no trailing slash', () => {
+    const config = c.parseConfig('registry=https://us-central1-npm.pkg.dev/my-project/my-repo');
+    assert.equal(config.registry, '//us-central1-npm.pkg.dev/my-project/my-repo/');
+    assert.equal(config.toString(), 'registry=https://us-central1-npm.pkg.dev/my-project/my-repo/');
+  });
+
+  it('preserves the repository name when a scoped registry URL has no trailing slash', () => {
+    const config = c.parseConfig('@myscope:registry=https://us-central1-npm.pkg.dev/my-project/my-repo');
+    assert.equal(config.registry, '//us-central1-npm.pkg.dev/my-project/my-repo/');
+    assert.equal(config.toString(), '@myscope:registry=https://us-central1-npm.pkg.dev/my-project/my-repo/');
+  });
 })
