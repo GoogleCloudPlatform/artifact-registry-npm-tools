@@ -22,7 +22,8 @@ describe('#config', function() {
     {name: 'auth token', config: '//us-west1-npm.pkg.dev/myproj/myrepo/:_authToken=myToken'},
     {name: 'password', config: '//us-west1-npm.pkg.dev/myproj/myrepo/:_password=myPassword'},
     {name: 'registry', config: 'registry=https://us-west1-npm.pkg.dev/myproj/myrepo/'},
-    {name: 'scoped registry', config: '@myscope:registry=https://us-west1-npm.pkg.dev/myproj/myrepo/'}
+    {name: 'scoped registry', config: '@myscope:registry=https://us-west1-npm.pkg.dev/myproj/myrepo/'},
+    {name: 'non-@ scoped registry', config: 'better-auth:registry=https://us-west1-npm.pkg.dev/myproj/myrepo/'}
   ];
 
   tests.forEach(({name, config}) => {
