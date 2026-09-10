@@ -1,12 +1,12 @@
 # Artifact Registry tools for npm packages
 
 This repository contains tools to simplify the process of working with
-npm/yarn packages using Artifact Registry.
+npm/yarn/pnpm packages using Artifact Registry.
 
 # Artifact Registry Module
 
 The Artifact Registry google-artifactregistry-auth module is an npm package
-which allows you to configure npm/yarn to interact with npm private
+which allows you to configure npm/yarn/pnpm to interact with npm private
 repositories in Artifact Registry.
 
 For more details, see
@@ -40,8 +40,8 @@ To use the module:
     
        `$ gcloud auth login`
 
-2.  Add settings to connect to the repository to .npmrc / .yarnrc.yml. Use the output from the
-    following command:
+2.  Add settings to connect to the repository to .npmrc, pnpm-workspace.yaml,
+    or .yarnrc.yml.
 
 2.1. For npm (and .npmrc)
 
@@ -60,7 +60,17 @@ To use the module:
 
     **LOCATION** is the location of the repository.
 
-2.2. For yarn (and .yarnrc.yml)
+2.2. For pnpm (and pnpm-workspace.yaml)
+
+    Add a `registries` map:
+
+    ```
+    registries:
+      default: 'https://LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID'
+      '@workspace': 'https://LOCATION-npm.pkg.dev/PROJECT_ID/REPOSITORY_ID'
+    ```
+
+2.3. For yarn (and .yarnrc.yml)
 
     Add to 
 
@@ -88,6 +98,10 @@ To use the module:
         npm:
         
         `$ npx google-artifactregistry-auth --repo-config=[./.npmrc] --credential-config=[~/.npmrc]`
+
+        pnpm:
+
+        `$ pnpx google-artifactregistry-auth --repo-config-pnpm=[./pnpm-workspace.yaml] --credential-config=[~/.npmrc]`
         
         yarn:
 
@@ -100,6 +114,14 @@ To use the module:
         ```
         "scripts": {
             "artifactregistry-login": "npx google-artifactregistry-auth --repo-config=[./.npmrc] --credential-config=[~/.npmrc]",
+        }
+        ```
+
+        pnpm:
+
+        ```
+        "scripts": {
+            "artifactregistry-login": "pnpx google-artifactregistry-auth --repo-config-pnpm=[./pnpm-workspace.yaml] --credential-config=[~/.npmrc]",
         }
         ```
         
@@ -115,6 +137,8 @@ To use the module:
         - `--repo-config` is the `.npmrc` file with your repository settings. If you don't specify this flag, 
         the default location is the current directory.
         - `--credential-config` is the path to the `.npmrc` file where you want to write the access token. The default is your user `.npmrc` file.
+        - `--repo-config-pnpm` is the `pnpm-workspace.yaml` file with your repository settings. If you don't specify this flag,
+        the nearest `pnpm-workspace.yaml` file is used when one exists.
         - `--repo-config-yarn` is the `.yarnrc.yml` file with your repository settings. If you don't specify this flag, 
         the default location is the current directory.
         - `--credential-config-yarn` is the path to the `.yarnrc.yml` file where you want to write the access token. The default is your user `.yarnrc.yml` file.
@@ -140,6 +164,14 @@ To use the module:
         }
         ```
 
+        pnpm:
+
+        ```
+        "scripts": {
+            "artifactregistry-login": "./node_modules/.bin/artifactregistry-auth --repo-config-pnpm=[./pnpm-workspace.yaml] --credential-config=[~/.npmrc]",
+        }
+        ```
+
         yarn:
 
         ```
@@ -151,4 +183,3 @@ To use the module:
         Run the script
 
         `$ npm run artifactregistry-login`
-
