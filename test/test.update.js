@@ -212,6 +212,20 @@ describe('#update', () => {
       assert.equal(gotTo, `//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd`);
     });
 
+    // https://github.com/GoogleCloudPlatform/artifact-registry-npm-tools/issues/85
+    it('add new scoped without trailing slash', async function(){
+      fromConfigPath = getConfigPath(`${this.test.title}-from`);
+      toConfigPath = getConfigPath(`${this.test.title}-to`)
+      fs.writeFileSync(fromConfigPath, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo`);
+      fs.writeFileSync(toConfigPath, ``);
+      await update.updateConfigFiles(fromConfigPath, toConfigPath, creds, false);
+
+      const gotFrom = fs.readFileSync(fromConfigPath, 'utf8');
+      const gotTo = fs.readFileSync(toConfigPath, 'utf8');
+      assert.equal(gotFrom, `@myscope:registry=https://us-west1-npm.pkg.dev/my-project/my-repo/`);
+      assert.equal(gotTo, `//us-west1-npm.pkg.dev/my-project/my-repo/:_authToken=abcd`);
+    });
+
     it('add new scoped', async function(){
       fromConfigPath = getConfigPath(`${this.test.title}-from`);
       toConfigPath = getConfigPath(`${this.test.title}-to`)
